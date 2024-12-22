@@ -10,6 +10,6 @@ grow_vertical = 2
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 1
-offset_right = 8.0
-offset_bottom = 8.0
+offset_right = 93.0
+offset_bottom = 31.0
 text = "Select Files"
