@@ -1,4 +1,7 @@
-[gd_scene format=3 uid="uid://lc58qq610hsg"]
+[gd_scene load_steps=3 format=3 uid="uid://lc58qq610hsg"]
+
+[ext_resource type="Texture2D" uid="uid://bt6ygm2xkv5x0" path="res://addons/spritesheet_tools/placeholder.png" id="1_enu6l"]
+[ext_resource type="Script" path="res://addons/spritesheet_tools/control.gd" id="1_f6q73"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -7,3 +10,137 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_f6q73")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.357438, 0.344443, 0.344443, 1)
+
+[node name="PropertyContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FileInfoContainer" type="VBoxContainer" parent="PropertyContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="ModeContainer" type="HBoxContainer" parent="PropertyContainer/FileInfoContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 5
+
+[node name="ModeLabel" type="Label" parent="PropertyContainer/FileInfoContainer/ModeContainer"]
+layout_mode = 2
+text = "Mode:"
+
+[node name="ModeOption" type="OptionButton" parent="PropertyContainer/FileInfoContainer/ModeContainer"]
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Pack to spritesheet"
+popup/item_1/text = "Unpack to separate images"
+popup/item_1/id = 1
+
+[node name="FilePath" type="TextEdit" parent="PropertyContainer/FileInfoContainer"]
+custom_minimum_size = Vector2(300, 100)
+layout_mode = 2
+text = "File Path"
+placeholder_text = "File Path"
+wrap_mode = 1
+
+[node name="FileOperationContainer" type="HBoxContainer" parent="PropertyContainer/FileInfoContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="SelectFile" type="Button" parent="PropertyContainer/FileInfoContainer/FileOperationContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Select File"
+
+[node name="ReloadFile" type="Button" parent="PropertyContainer/FileInfoContainer/FileOperationContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reload File"
+
+[node name="SpritesheetProperty" type="VBoxContainer" parent="PropertyContainer"]
+layout_mode = 2
+
+[node name="GridProperty" type="HBoxContainer" parent="PropertyContainer/SpritesheetProperty"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="GridLabel" type="VBoxContainer" parent="PropertyContainer/SpritesheetProperty/GridProperty"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+
+[node name="Row" type="Label" parent="PropertyContainer/SpritesheetProperty/GridProperty/GridLabel"]
+layout_mode = 2
+text = "Row:"
+
+[node name="Column" type="Label" parent="PropertyContainer/SpritesheetProperty/GridProperty/GridLabel"]
+layout_mode = 2
+text = "Column:"
+
+[node name="GridValue" type="VBoxContainer" parent="PropertyContainer/SpritesheetProperty/GridProperty"]
+layout_mode = 2
+
+[node name="Row" type="TextEdit" parent="PropertyContainer/SpritesheetProperty/GridProperty/GridValue"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+
+[node name="Column" type="TextEdit" parent="PropertyContainer/SpritesheetProperty/GridProperty/GridValue"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+
+[node name="MarginProperty" type="HBoxContainer" parent="PropertyContainer/SpritesheetProperty"]
+layout_mode = 2
+
+[node name="MarginLabel" type="VBoxContainer" parent="PropertyContainer/SpritesheetProperty/MarginProperty"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+
+[node name="Horizontal" type="Label" parent="PropertyContainer/SpritesheetProperty/MarginProperty/MarginLabel"]
+layout_mode = 2
+text = "H Margin:"
+
+[node name="Vertical" type="Label" parent="PropertyContainer/SpritesheetProperty/MarginProperty/MarginLabel"]
+layout_mode = 2
+text = "V Margin:"
+
+[node name="MarginValue" type="VBoxContainer" parent="PropertyContainer/SpritesheetProperty/MarginProperty"]
+layout_mode = 2
+
+[node name="Horizontal" type="TextEdit" parent="PropertyContainer/SpritesheetProperty/MarginProperty/MarginValue"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+
+[node name="Vertical" type="TextEdit" parent="PropertyContainer/SpritesheetProperty/MarginProperty/MarginValue"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+
+[node name="Button" type="Button" parent="PropertyContainer/SpritesheetProperty"]
+layout_mode = 2
+text = "Generate"
+
+[node name="TextureRect" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1800.0
+offset_bottom = 1000.0
+grow_horizontal = 0
+texture = ExtResource("1_enu6l")
+stretch_mode = 1
+
+[connection signal="pressed" from="PropertyContainer/FileInfoContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]
