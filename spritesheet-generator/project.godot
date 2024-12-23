@@ -21,4 +21,4 @@ window/size/viewport_height=1100
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/spritesheet_generator/plugin.cfg")
+enabled=PackedStringArray("res://addons/spritesheet_generator/plugin.cfg", "res://addons/spritesheet_tools/plugin.cfg")
