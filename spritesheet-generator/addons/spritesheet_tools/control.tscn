@@ -131,7 +131,7 @@ layout_mode = 2
 layout_mode = 2
 text = "Generate"
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="SpritesheetPreview" type="TextureRect" parent="."]
 texture_filter = 1
 layout_mode = 1
 anchors_preset = 1
@@ -143,4 +143,17 @@ grow_horizontal = 0
 texture = ExtResource("1_enu6l")
 stretch_mode = 1
 
+[node name="SelectFileDialog" type="FileDialog" parent="."]
+title = "Open File(s)"
+initial_position = 1
+size = Vector2i(1600, 800)
+ok_button_text = "Open"
+file_mode = 1
+access = 2
+filters = PackedStringArray("*.jpg", "*.jpeg", "*.png")
+
 [connection signal="pressed" from="PropertyContainer/FileInfoContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]
+[connection signal="canceled" from="SelectFileDialog" to="." method="_on_select_file_dialog_canceled"]
+[connection signal="confirmed" from="SelectFileDialog" to="." method="_on_select_file_dialog_confirmed"]
+[connection signal="file_selected" from="SelectFileDialog" to="." method="_on_select_file_dialog_file_selected"]
+[connection signal="files_selected" from="SelectFileDialog" to="." method="_on_select_file_dialog_files_selected"]
