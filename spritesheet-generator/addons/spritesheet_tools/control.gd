@@ -20,7 +20,7 @@ func _on_select_file_dialog_files_selected(paths: PackedStringArray) -> void:
     self.selected_files = paths
 
 func _on_select_file_dialog_confirmed() -> void:
-    for file_path in selected_files:
+    for file_path in self.selected_files:
         self.spritesheet_preview.add_child(self.load_image_as_texture(file_path))
 
 func _on_select_file_dialog_canceled() -> void:
