@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://lc58qq610hsg"]
+[gd_scene load_steps=3 format=3 uid="uid://lc58qq610hsg"]
 
 [ext_resource type="Script" path="res://addons/spritesheet_tools/control.gd" id="1_f6q73"]
+[ext_resource type="Texture2D" uid="uid://t8a24567l10d" path="res://addons/spritesheet_tools/arrow.png" id="2_57mpp"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -16,7 +17,6 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.357438, 0.344443, 0.344443, 1)
@@ -176,6 +176,33 @@ offset_top = 4.0
 offset_right = 2188.68
 offset_bottom = 1104.0
 
+[node name="PageSwitchContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 1126.0
+offset_top = 1119.0
+offset_right = 2126.0
+offset_bottom = 1375.0
+scale = Vector2(0.3, 0.3)
+alignment = 1
+
+[node name="Left" type="TextureButton" parent="PageSwitchContainer"]
+layout_mode = 2
+texture_normal = ExtResource("2_57mpp")
+flip_h = true
+
+[node name="Number" type="LineEdit" parent="PageSwitchContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 120
+text = "1/1"
+alignment = 1
+editable = false
+expand_to_text_length = true
+
+[node name="Right" type="TextureButton" parent="PageSwitchContainer"]
+layout_mode = 2
+texture_normal = ExtResource("2_57mpp")
+
 [node name="Test1" type="Button" parent="."]
 top_level = true
 layout_mode = 1
@@ -204,4 +231,6 @@ dialog_autowrap = true
 [connection signal="confirmed" from="SelectFileDialog" to="." method="_on_select_file_dialog_confirmed"]
 [connection signal="file_selected" from="SelectFileDialog" to="." method="_on_select_file_dialog_file_selected"]
 [connection signal="files_selected" from="SelectFileDialog" to="." method="_on_select_file_dialog_files_selected"]
+[connection signal="pressed" from="PageSwitchContainer/Left" to="." method="_on_page_left_pressed"]
+[connection signal="pressed" from="PageSwitchContainer/Right" to="." method="_on_page_right_pressed"]
 [connection signal="pressed" from="Test1" to="." method="_on_test_1_pressed"]

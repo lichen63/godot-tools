@@ -26,6 +26,12 @@ func _on_select_file_dialog_confirmed() -> void:
 func _on_select_file_dialog_canceled() -> void:
     self.selected_files.clear()
 
+func _on_page_left_pressed() -> void:
+    pass # Replace with function body.
+
+func _on_page_right_pressed() -> void:
+    pass # Replace with function body.
+
 func load_image_as_texture(file_path: String) -> TextureRect:
     var texture_rect := TextureRect.new()
     var image:= Image.load_from_file(file_path)
