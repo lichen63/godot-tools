@@ -8,3 +8,4 @@ A tool used to create spritesheets from a folder of images, and split spriteshee
 ### References
 
 - https://github.com/wo1fsea/PyTexturePacker
+- https://github.com/TeamHypersomnia/rectpack2D/tree/master
