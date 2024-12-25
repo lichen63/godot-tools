@@ -54,17 +54,17 @@ func show_images_on_preview(files: PackedStringArray) -> void:
     var size_col_value := self.get_and_validate_input(self.size_y_edit)
     var current_x := 0
     var current_y := 0
-    var column_count := 0
+    var max_image_height_in_row := 0
     for file_path in files:
         var texture_rect := self.load_image_as_texture(file_path)
         var image_size := texture_rect.texture.get_size()
         if current_x + image_size.x + margin_value > size_row_value:
             current_x = 0
-            current_y += image_size.y + margin_value
-            column_count = 0
+            current_y += max_image_height_in_row + margin_value
+            max_image_height_in_row = 0
         texture_rect.position = Vector2(current_x, current_y)
         current_x += image_size.x + margin_value
-        column_count += 1
+        max_image_height_in_row = max(max_image_height_in_row, image_size.y)
         self.spritesheet_preview.add_child(texture_rect)
 
 func _on_test_1_pressed() -> void:
