@@ -74,65 +74,50 @@ layout_mode = 2
 
 [node name="SizeProperty" type="HBoxContainer" parent="PropertyContainer/SpritesheetProperty"]
 layout_mode = 2
-theme_override_constants/separation = 1
+theme_override_constants/separation = 63
 
 [node name="SizeLabel" type="VBoxContainer" parent="PropertyContainer/SpritesheetProperty/SizeProperty"]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 10
 
-[node name="Row" type="Label" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeLabel"]
+[node name="X" type="Label" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeLabel"]
 layout_mode = 2
-text = "Size Row:"
+text = "X:"
 
-[node name="Column" type="Label" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeLabel"]
+[node name="Y" type="Label" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeLabel"]
 layout_mode = 2
-text = "Size Column:"
+text = "Y:"
 
 [node name="SizeValue" type="VBoxContainer" parent="PropertyContainer/SpritesheetProperty/SizeProperty"]
 layout_mode = 2
 
-[node name="Row" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeValue"]
+[node name="X" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
+text = "1024"
 placeholder_text = "1024"
 max_length = 6
 
-[node name="Column" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeValue"]
+[node name="Y" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
+text = "1024"
 placeholder_text = "1024"
 max_length = 6
 
 [node name="MarginProperty" type="HBoxContainer" parent="PropertyContainer/SpritesheetProperty"]
 layout_mode = 2
-theme_override_constants/separation = 23
+theme_override_constants/separation = 20
 
-[node name="MarginLabel" type="VBoxContainer" parent="PropertyContainer/SpritesheetProperty/MarginProperty"]
+[node name="Label" type="Label" parent="PropertyContainer/SpritesheetProperty/MarginProperty"]
 layout_mode = 2
-size_flags_vertical = 4
-theme_override_constants/separation = 10
+text = "Margin:"
 
-[node name="Horizontal" type="Label" parent="PropertyContainer/SpritesheetProperty/MarginProperty/MarginLabel"]
-layout_mode = 2
-text = "H Margin:"
-
-[node name="Vertical" type="Label" parent="PropertyContainer/SpritesheetProperty/MarginProperty/MarginLabel"]
-layout_mode = 2
-text = "V Margin:"
-
-[node name="MarginValue" type="VBoxContainer" parent="PropertyContainer/SpritesheetProperty/MarginProperty"]
-layout_mode = 2
-
-[node name="Horizontal" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/MarginProperty/MarginValue"]
+[node name="Value" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/MarginProperty"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
-placeholder_text = "1"
-max_length = 6
-
-[node name="Vertical" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/MarginProperty/MarginValue"]
-custom_minimum_size = Vector2(250, 35)
-layout_mode = 2
+text = "1"
 placeholder_text = "1"
 max_length = 6
 
@@ -206,6 +191,13 @@ offset_bottom = -116.2
 grow_horizontal = 0
 grow_vertical = 0
 text = "Test1"
+
+[node name="ErrorDialog" type="AcceptDialog" parent="."]
+title = "Error"
+initial_position = 1
+size = Vector2i(1000, 800)
+dialog_text = "Error Message"
+dialog_autowrap = true
 
 [connection signal="pressed" from="PropertyContainer/FileInfoContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]
 [connection signal="canceled" from="SelectFileDialog" to="." method="_on_select_file_dialog_canceled"]
