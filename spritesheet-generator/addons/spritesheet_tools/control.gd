@@ -50,8 +50,8 @@ func show_next_preview_control(is_next: bool) -> void:
     self.update_preview_num_text()
 
 func load_image_as_texture(file_path: String) -> TextureRect:
-    var texture_rect := TextureRect.new()
-    var image:= Image.load_from_file(file_path)
+    var texture_rect: TextureRect = TextureRect.new()
+    var image:Image = Image.load_from_file(file_path)
     texture_rect.texture = ImageTexture.create_from_image(image)
     return texture_rect
 
@@ -63,7 +63,7 @@ func clear_preview_images() -> void:
         child.queue_free()
 
 func get_and_validate_input(input: LineEdit) -> int:
-    var text := input.text
+    var text:String = input.text
     if not text.is_valid_int():
         self.show_error_with_message("[%s] is not a valid integer" % input.get_path())
         return input.placeholder_text.to_int()
@@ -74,23 +74,23 @@ func show_error_with_message(message: String) -> void:
     self.error_dialog.show()
 
 func show_images_on_preview(files: PackedStringArray) -> void:
-    var margin_value := self.get_and_validate_input(self.margin_edit)
-    var max_size_x := self.get_and_validate_input(self.size_x_edit)
-    var max_size_y := self.get_and_validate_input(self.size_y_edit)
-    var current_x := 0
-    var current_y := 0
-    var max_image_height_in_row := 0
+    var margin_value: int = self.get_and_validate_input(self.margin_edit)
+    var max_size_x: int = self.get_and_validate_input(self.size_x_edit)
+    var max_size_y: int= self.get_and_validate_input(self.size_y_edit)
+    var current_x: int= 0
+    var current_y: int = 0
+    var max_image_height_in_row: int = 0
     
-    var texture_arr := []
-    for file_path in files:
-        var texture_rect := self.load_image_as_texture(file_path)
-        texture_arr.append(texture_rect)
+    var texture_list: Array[TextureRect] = []
+    for file_path: String in files:
+        var texture_rect: TextureRect = self.load_image_as_texture(file_path)
+        texture_list.append(texture_rect)
     
-    var cur_index := 0
-    var cur_control := Control.new()
-    while cur_index < texture_arr.size():
-        var texture_rect: TextureRect = texture_arr[cur_index]
-        var image_size := texture_rect.texture.get_size()
+    var cur_index: int = 0
+    var cur_control: Control = Control.new()
+    while cur_index < texture_list.size():
+        var texture_rect: TextureRect = texture_list[cur_index]
+        var image_size: Vector2 = texture_rect.texture.get_size()
         if current_x + image_size.x + margin_value > max_size_x:
             current_x = 0
             current_y += max_image_height_in_row + margin_value
@@ -115,7 +115,7 @@ func update_preview_num_text() -> void:
 
 func _on_test_1_pressed() -> void:
     self.clear_preview_images()
-    var files = PackedStringArray()
+    var files: PackedStringArray = PackedStringArray()
     for i in range(1, 11):
         files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
     for i in range(1, 11):
