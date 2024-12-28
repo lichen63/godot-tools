@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Spritesheet Generator"
+config/name="Spritesheet Tools"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -21,4 +21,4 @@ window/size/viewport_height=1200
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/spritesheet_generator/plugin.cfg", "res://addons/spritesheet_tools/plugin.cfg")
+enabled=PackedStringArray("res://addons/spritesheet_tools/plugin.cfg")

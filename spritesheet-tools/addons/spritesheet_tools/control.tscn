@@ -33,7 +33,7 @@ theme_override_constants/separation = 5
 [node name="ModeContainer" type="HBoxContainer" parent="PropertyContainer/FileInfoContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_constants/separation = 5
+theme_override_constants/separation = 15
 
 [node name="ModeLabel" type="Label" parent="PropertyContainer/FileInfoContainer/ModeContainer"]
 layout_mode = 2
@@ -121,9 +121,18 @@ text = "1"
 placeholder_text = "1"
 max_length = 6
 
-[node name="Button" type="Button" parent="PropertyContainer/SpritesheetProperty"]
+[node name="Generate" type="Button" parent="PropertyContainer/SpritesheetProperty"]
 layout_mode = 2
 text = "Generate"
+
+[node name="SavePath" type="LineEdit" parent="PropertyContainer/SpritesheetProperty"]
+layout_mode = 2
+text = "user://export.png"
+placeholder_text = "Save Path"
+
+[node name="SaveToFile" type="Button" parent="PropertyContainer/SpritesheetProperty"]
+layout_mode = 2
+text = "SaveToFile"
 
 [node name="SelectFileDialog" type="FileDialog" parent="."]
 title = "Open File(s)"
@@ -143,7 +152,7 @@ offset_bottom = 40.0
 layout_mode = 0
 offset_left = 400.0
 offset_top = 2.0
-offset_right = 2200.0
+offset_right = 2198.0
 offset_bottom = 4.0
 
 [node name="BottomBorder" type="ColorRect" parent="Preview"]
@@ -158,23 +167,24 @@ layout_mode = 0
 offset_left = 398.0
 offset_top = 2.0
 offset_right = 400.0
-offset_bottom = 1102.0
+offset_bottom = 1106.0
 
 [node name="RightBorder" type="ColorRect" parent="Preview"]
 layout_mode = 0
 offset_left = 2196.0
 offset_top = 2.0
 offset_right = 2198.0
-offset_bottom = 1102.0
+offset_bottom = 1106.0
 
-[node name="SpritesheetPreview" type="Control" parent="Preview"]
-layout_mode = 1
-anchor_left = 0.183
-anchor_right = 0.183
-offset_left = 388.68
+[node name="PreviewViewportContainer" type="SubViewportContainer" parent="Preview"]
+layout_mode = 0
+offset_left = 400.0
 offset_top = 4.0
-offset_right = 2188.68
+offset_right = 2196.0
 offset_bottom = 1104.0
+
+[node name="PreviewViewport" type="SubViewport" parent="Preview/PreviewViewportContainer"]
+size = Vector2i(1796, 1100)
 
 [node name="PageSwitchContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
@@ -227,6 +237,7 @@ dialog_text = "Error Message"
 dialog_autowrap = true
 
 [connection signal="pressed" from="PropertyContainer/FileInfoContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]
+[connection signal="pressed" from="PropertyContainer/SpritesheetProperty/SaveToFile" to="." method="_on_save_to_file_pressed"]
 [connection signal="canceled" from="SelectFileDialog" to="." method="_on_select_file_dialog_canceled"]
 [connection signal="confirmed" from="SelectFileDialog" to="." method="_on_select_file_dialog_confirmed"]
 [connection signal="file_selected" from="SelectFileDialog" to="." method="_on_select_file_dialog_file_selected"]
