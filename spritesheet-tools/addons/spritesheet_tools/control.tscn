@@ -127,7 +127,7 @@ text = "Generate"
 
 [node name="SavePath" type="LineEdit" parent="PropertyContainer/SpritesheetProperty"]
 layout_mode = 2
-text = "user://export.png"
+text = "user://export/"
 placeholder_text = "Save Path"
 
 [node name="SaveToFile" type="Button" parent="PropertyContainer/SpritesheetProperty"]
@@ -235,6 +235,21 @@ initial_position = 1
 size = Vector2i(1000, 800)
 dialog_text = "Error Message"
 dialog_autowrap = true
+
+[node name="SaveImageDialog" type="AcceptDialog" parent="."]
+title = "Save Image"
+initial_position = 2
+size = Vector2i(1800, 1100)
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="SaveImageDialog"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 1808.0
+offset_bottom = 1108.0
+
+[node name="SubViewport" type="SubViewport" parent="SaveImageDialog/SubViewportContainer"]
+handle_input_locally = false
+render_target_update_mode = 0
 
 [connection signal="pressed" from="PropertyContainer/FileInfoContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]
 [connection signal="pressed" from="PropertyContainer/SpritesheetProperty/SaveToFile" to="." method="_on_save_to_file_pressed"]
