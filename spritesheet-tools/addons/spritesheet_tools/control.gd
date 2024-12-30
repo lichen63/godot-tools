@@ -19,9 +19,19 @@ var preview_cur_viewport_index: int = 0
 @onready var save_image_container: SubViewportContainer = $SaveImageDialog/SubViewportContainer
 @onready var progress_panel: PopupPanel = $ProgressPopupPanel
 @onready var progress_bar: ProgressBar = $ProgressPopupPanel/ProgressBar
+@onready var selected_files_edit: TextEdit = $PropertyContainer/FileInfoContainer/FilePath
 
 func _on_select_file_pressed() -> void:
     self.select_file_dialog.show()
+
+func _on_reload_file_pressed() -> void:
+    var new_files_list: PackedStringArray = self.selected_files_edit.text.strip_edges().split("\n")
+    self.selected_files.clear()
+    self.selected_files.append_array(new_files_list)
+    self.clear_selected_files_edit()
+    self.update_selected_files_edit()
+    self.clear_preview_images()
+    self.show_images_on_preview()
 
 func _on_select_file_dialog_file_selected(path: String) -> void:
     self.selected_files.push_back(path)
@@ -30,11 +40,17 @@ func _on_select_file_dialog_files_selected(paths: PackedStringArray) -> void:
     self.selected_files = paths
     
 func _on_select_file_dialog_confirmed() -> void:
+    self.clear_selected_files_edit()
+    self.update_selected_files_edit()
     self.clear_preview_images()
-    self.show_images_on_preview(self.selected_files)
+    self.show_images_on_preview()
 
 func _on_select_file_dialog_canceled() -> void:
     self.selected_files.clear()
+
+func _on_generate_pressed() -> void:
+    self.clear_preview_images()
+    self.show_images_on_preview()
 
 func _on_page_left_pressed() -> void:
     self.show_next_or_prev_viewport(false)
@@ -126,7 +142,7 @@ func show_next_or_prev_viewport(is_next: bool) -> void:
 
 func load_image_as_texture(file_path: String) -> TextureRect:
     var texture_rect: TextureRect = TextureRect.new()
-    var image:Image = Image.load_from_file(file_path)
+    var image: Image = Image.load_from_file(file_path)
     texture_rect.texture = ImageTexture.create_from_image(image)
     return texture_rect
 
@@ -152,7 +168,7 @@ func show_error_with_message(message: String) -> void:
     self.error_dialog.dialog_text = message
     self.error_dialog.show()
 
-func show_images_on_preview(files: PackedStringArray) -> void:
+func show_images_on_preview(files: PackedStringArray = self.selected_files) -> void:
     var margin_value: int = self.get_and_validate_input(self.margin_edit)
     var max_size_x: int = self.get_and_validate_input(self.size_x_edit)
     var max_size_y: int= self.get_and_validate_input(self.size_y_edit)
@@ -161,8 +177,8 @@ func show_images_on_preview(files: PackedStringArray) -> void:
     var max_image_height_in_row: int = 0
     var texture_list: Array[TextureRect] = []
     for file_path: String in files:
-        var texture_rect: TextureRect = self.load_image_as_texture(file_path)
-        texture_list.append(texture_rect)
+        if not file_path.is_empty():
+            texture_list.append(self.load_image_as_texture(file_path))
     var cur_index: int = 0
     var cur_viewport: SubViewport = SubViewport.new()
     #cur_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -199,6 +215,15 @@ func update_preview_image() -> void:
         self.preview_viewport_container.remove_child(child)
     self.preview_viewport_container.size = self.preview_viewport_list[self.preview_cur_viewport_index].size
     self.preview_viewport_container.add_child(self.preview_viewport_list[self.preview_cur_viewport_index])
+
+func clear_selected_files_edit() -> void:
+    self.selected_files_edit.text = ""
+
+func update_selected_files_edit() -> void:
+    var files_str: String = ""
+    for file in self.selected_files:
+        files_str += "%s\n" % file
+    self.selected_files_edit.text = files_str
 
 func _on_test_1_pressed() -> void:
     self.clear_preview_images()

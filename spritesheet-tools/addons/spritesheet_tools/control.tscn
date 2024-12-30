@@ -50,7 +50,6 @@ popup/item_1/id = 1
 [node name="FilePath" type="TextEdit" parent="PropertyContainer/FileInfoContainer"]
 custom_minimum_size = Vector2(300, 100)
 layout_mode = 2
-text = "File Path"
 placeholder_text = "File Path"
 wrap_mode = 1
 
@@ -266,6 +265,8 @@ step = 0.1
 value = 0.3
 
 [connection signal="pressed" from="PropertyContainer/FileInfoContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]
+[connection signal="pressed" from="PropertyContainer/FileInfoContainer/FileOperationContainer/ReloadFile" to="." method="_on_reload_file_pressed"]
+[connection signal="pressed" from="PropertyContainer/SpritesheetProperty/Generate" to="." method="_on_generate_pressed"]
 [connection signal="pressed" from="PropertyContainer/SpritesheetProperty/SaveToFile" to="." method="_on_save_to_file_pressed"]
 [connection signal="canceled" from="SelectFileDialog" to="." method="_on_select_file_dialog_canceled"]
 [connection signal="confirmed" from="SelectFileDialog" to="." method="_on_select_file_dialog_confirmed"]
