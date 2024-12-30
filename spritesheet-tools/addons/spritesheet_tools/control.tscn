@@ -236,20 +236,34 @@ size = Vector2i(1000, 800)
 dialog_text = "Error Message"
 dialog_autowrap = true
 
-[node name="SaveImageDialog" type="AcceptDialog" parent="."]
+[node name="SaveImageDialog" type="PopupPanel" parent="."]
 title = "Save Image"
 initial_position = 2
 size = Vector2i(1800, 1100)
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="SaveImageDialog"]
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 1808.0
-offset_bottom = 1108.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 1796.0
+offset_bottom = 1096.0
 
 [node name="SubViewport" type="SubViewport" parent="SaveImageDialog/SubViewportContainer"]
 handle_input_locally = false
 render_target_update_mode = 0
+
+[node name="ProgressPopupPanel" type="PopupPanel" parent="."]
+title = "Progress"
+initial_position = 2
+size = Vector2i(1200, 60)
+
+[node name="ProgressBar" type="ProgressBar" parent="ProgressPopupPanel"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 1196.0
+offset_bottom = 56.0
+max_value = 1.0
+step = 0.1
+value = 0.3
 
 [connection signal="pressed" from="PropertyContainer/FileInfoContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]
 [connection signal="pressed" from="PropertyContainer/SpritesheetProperty/SaveToFile" to="." method="_on_save_to_file_pressed"]

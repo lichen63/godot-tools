@@ -15,8 +15,10 @@ var preview_cur_viewport_index: int = 0
 @onready var page_number: LineEdit = $PageSwitchContainer/Number
 @onready var save_path_edit: LineEdit = $PropertyContainer/SpritesheetProperty/SavePath
 @onready var preview_viewport_container: SubViewportContainer = $Preview/PreviewViewportContainer
-@onready var save_image_dialog: AcceptDialog = $SaveImageDialog
+@onready var save_image_panel: PopupPanel = $SaveImageDialog
 @onready var save_image_container: SubViewportContainer = $SaveImageDialog/SubViewportContainer
+@onready var progress_panel: PopupPanel = $ProgressPopupPanel
+@onready var progress_bar: ProgressBar = $ProgressPopupPanel/ProgressBar
 
 func _on_select_file_pressed() -> void:
     self.select_file_dialog.show()
@@ -45,7 +47,10 @@ func _on_save_to_file_pressed() -> void:
     if not self.is_save_path_valid(save_path_string):
         self.show_error_with_message("Invalid save path.")
         return
-    self.save_image_dialog.show()
+    self.save_image_panel.show()
+    self.progress_panel.show()
+    self.progress_bar.value = 0
+    var index: int = 0
     for viewport in self.preview_viewport_list:
         var file_path: String = self.get_next_savable_file_path(save_path_string)
         if file_path.is_empty():
@@ -69,6 +74,11 @@ func _on_save_to_file_pressed() -> void:
                 print("Failed to save image, Error: ", err)
         else:
             print("Failed to convert texture to image")
+        self.create_tween().tween_property(self.progress_bar, "value", (index+1.0) / self.preview_viewport_list.size(), 0.6)
+        index += 1
+    await self.get_tree().create_timer(1).timeout
+    self.progress_panel.hide()
+    self.save_image_panel.hide()
 
 func get_next_savable_file_path(save_path: String) -> String:
     var index: int = 0
@@ -193,6 +203,36 @@ func update_preview_image() -> void:
 func _on_test_1_pressed() -> void:
     self.clear_preview_images()
     var files: PackedStringArray = PackedStringArray()
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Dead_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Idle_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Jump_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/JumpAttack_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Run_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Walk_%d.png" % i)
+        
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Dead_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Idle_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Jump_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/JumpAttack_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Run_%d.png" % i)
+    for i in range(1, 11):
+        files.append("res://sample/sprite_images/character/Walk_%d.png" % i)
+        
     for i in range(1, 11):
         files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
     for i in range(1, 11):
