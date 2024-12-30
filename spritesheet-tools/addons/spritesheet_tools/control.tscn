@@ -94,8 +94,8 @@ layout_mode = 2
 [node name="X" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
-text = "1024"
-placeholder_text = "1024"
+text = "2048"
+placeholder_text = "2048"
 max_length = 6
 
 [node name="Y" type="LineEdit" parent="PropertyContainer/SpritesheetProperty/SizeProperty/SizeValue"]
@@ -143,54 +143,84 @@ access = 2
 filters = PackedStringArray("*.jpg", "*.jpeg", "*.png")
 
 [node name="Preview" type="Control" parent="."]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="TopBorder" type="ColorRect" parent="Preview"]
-layout_mode = 0
-offset_left = 400.0
-offset_top = 2.0
-offset_right = 2198.0
-offset_bottom = 4.0
-
-[node name="BottomBorder" type="ColorRect" parent="Preview"]
-layout_mode = 0
-offset_left = 398.0
-offset_top = 1104.0
-offset_right = 2198.0
-offset_bottom = 1106.0
-
-[node name="LeftBorder" type="ColorRect" parent="Preview"]
-layout_mode = 0
-offset_left = 398.0
-offset_top = 2.0
-offset_right = 400.0
-offset_bottom = 1106.0
-
-[node name="RightBorder" type="ColorRect" parent="Preview"]
-layout_mode = 0
-offset_left = 2196.0
-offset_top = 2.0
-offset_right = 2198.0
-offset_bottom = 1106.0
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2048.0
+offset_bottom = -200.0
+grow_horizontal = 0
+grow_vertical = 2
 
 [node name="PreviewViewportContainer" type="SubViewportContainer" parent="Preview"]
-layout_mode = 0
-offset_left = 400.0
-offset_top = 4.0
-offset_right = 2196.0
-offset_bottom = 1104.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="PreviewViewport" type="SubViewport" parent="Preview/PreviewViewportContainer"]
-size = Vector2i(1796, 1100)
+handle_input_locally = false
+size = Vector2i(2048, 1200)
+render_target_update_mode = 4
+
+[node name="TopBorder" type="ColorRect" parent="Preview"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -2048.0
+offset_bottom = 2.0
+grow_horizontal = 0
+
+[node name="BottomBorder" type="ColorRect" parent="Preview"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2048.0
+offset_top = 2.0
+offset_bottom = 4.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="LeftBorder" type="ColorRect" parent="Preview"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -600.0
+offset_right = 2.0
+offset_bottom = 604.0
+grow_vertical = 2
+
+[node name="RightBorder" type="ColorRect" parent="Preview"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -600.0
+offset_bottom = 604.0
+grow_horizontal = 0
+grow_vertical = 2
 
 [node name="PageSwitchContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 1126.0
-offset_top = 1119.0
-offset_right = 2126.0
-offset_bottom = 1375.0
+offset_left = 1600.0
+offset_top = 1291.0
+offset_right = 2600.0
+offset_bottom = 1547.0
 scale = Vector2(0.3, 0.3)
 alignment = 1
 
@@ -220,10 +250,10 @@ anchor_left = 0.984
 anchor_top = 1.091
 anchor_right = 0.984
 anchor_bottom = 1.091
-offset_left = -345.8
-offset_top = -159.2
-offset_right = -27.8
-offset_bottom = -116.2
+offset_left = -329.4
+offset_top = -198.4
+offset_right = -11.4001
+offset_bottom = -155.4
 grow_horizontal = 0
 grow_vertical = 0
 text = "Test1"
