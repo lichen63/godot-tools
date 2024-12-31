@@ -1,43 +1,79 @@
 @tool
 extends Control
 
+enum ToolMode {
+    PACK_IMAGES,
+    SPLIT_IMAGES
+}
+
 const EXPORT_FILE_NAME_FORMAT = "export_%d.png"
 
-var selected_files: PackedStringArray = PackedStringArray()
+var cur_mode: ToolMode = ToolMode.PACK_IMAGES
+var selected_files_for_pack: PackedStringArray = PackedStringArray()
+var selected_file_for_split: String = ""
 var preview_viewport_list: Array[SubViewport] = []
 var preview_cur_viewport_index: int = 0
 
 @onready var select_file_dialog: FileDialog = $SelectFileDialog
-@onready var size_x_edit: LineEdit = $PropertyContainer/SpritesheetProperty/SizeProperty/SizeValue/X
-@onready var size_y_edit: LineEdit = $PropertyContainer/SpritesheetProperty/SizeProperty/SizeValue/Y
-@onready var margin_edit: LineEdit = $PropertyContainer/SpritesheetProperty/MarginProperty/Value
+@onready var size_x_edit: LineEdit = $PropertyContainer/SizeProperty/SizeValue/X
+@onready var size_y_edit: LineEdit = $PropertyContainer/SizeProperty/SizeValue/Y
+@onready var margin_edit: LineEdit = $PropertyContainer/MarginProperty/Value
 @onready var error_dialog: AcceptDialog = $ErrorDialog
 @onready var page_number: LineEdit = $PageSwitchContainer/Number
-@onready var save_path_edit: LineEdit = $PropertyContainer/SpritesheetProperty/SavePath
+@onready var save_path_edit: LineEdit = $PropertyContainer/SavePath
 @onready var preview_viewport_container: SubViewportContainer = $Preview/PreviewViewportContainer
 @onready var save_image_panel: PopupPanel = $SaveImageDialog
 @onready var save_image_container: SubViewportContainer = $SaveImageDialog/SubViewportContainer
 @onready var progress_panel: PopupPanel = $ProgressPopupPanel
 @onready var progress_bar: ProgressBar = $ProgressPopupPanel/ProgressBar
-@onready var selected_files_edit: TextEdit = $PropertyContainer/FileInfoContainer/FilePath
+@onready var selected_files_edit: TextEdit = $PropertyContainer/FilePath
+
+
+func _on_mode_option_item_selected(index: int) -> void:
+    match index:
+        0:
+            self.cur_mode = ToolMode.PACK_IMAGES
+        1:
+            self.cur_mode = ToolMode.SPLIT_IMAGES
+        _:
+            self.show_error_with_message("Unknown tool mode selected")
 
 func _on_select_file_pressed() -> void:
+    if self.cur_mode == ToolMode.PACK_IMAGES:
+        self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES
+    elif self.cur_mode == ToolMode.SPLIT_IMAGES:
+        self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
     self.select_file_dialog.show()
 
 func _on_reload_file_pressed() -> void:
-    var new_files_list: PackedStringArray = self.selected_files_edit.text.strip_edges().split("\n")
-    self.selected_files.clear()
-    self.selected_files.append_array(new_files_list)
-    self.clear_selected_files_edit()
-    self.update_selected_files_edit()
-    self.clear_preview_images()
-    self.show_images_on_preview()
+    var text_in_edit: String = self.selected_files_edit.text.strip_edges()
+    if self.cur_mode == ToolMode.PACK_IMAGES:
+        self.selected_files_for_pack.clear()
+        for file_path in text_in_edit.split("\n"):
+            if FileAccess.file_exists(file_path):
+                self.selected_files_for_pack.append(file_path)
+        self.clear_selected_files_edit()
+        self.update_selected_files_edit()
+        self.clear_preview_images()
+        self.show_images_on_preview()
+    elif self.cur_mode == ToolMode.SPLIT_IMAGES:
+        if not FileAccess.file_exists(text_in_edit):
+            self.show_error_with_message("File path is not a valid path or file does not exist")
+            return
+        self.selected_file_for_split = text_in_edit
+        self.clear_selected_files_edit()
+        self.update_selected_files_edit()
+        self.clear_preview_images()
+        self.show_images_on_preview()
 
 func _on_select_file_dialog_file_selected(path: String) -> void:
-    self.selected_files.push_back(path)
+    if self.cur_mode == ToolMode.PACK_IMAGES:
+        self.selected_files_for_pack.push_back(path)
+    elif self.cur_mode == ToolMode.SPLIT_IMAGES:
+        self.selected_file_for_split = path
 
 func _on_select_file_dialog_files_selected(paths: PackedStringArray) -> void:
-    self.selected_files = paths
+    self.selected_files_for_pack = paths
     
 func _on_select_file_dialog_confirmed() -> void:
     self.clear_selected_files_edit()
@@ -46,7 +82,7 @@ func _on_select_file_dialog_confirmed() -> void:
     self.show_images_on_preview()
 
 func _on_select_file_dialog_canceled() -> void:
-    self.selected_files.clear()
+    pass
 
 func _on_generate_pressed() -> void:
     self.clear_preview_images()
@@ -168,44 +204,50 @@ func show_error_with_message(message: String) -> void:
     self.error_dialog.dialog_text = message
     self.error_dialog.show()
 
-func show_images_on_preview(files: PackedStringArray = self.selected_files) -> void:
+func show_images_on_preview(files: PackedStringArray = self.selected_files_for_pack) -> void:
     var margin_value: int = self.get_and_validate_input(self.margin_edit)
     var max_size_x: int = self.get_and_validate_input(self.size_x_edit)
     var max_size_y: int= self.get_and_validate_input(self.size_y_edit)
-    var current_x: int= 0
-    var current_y: int = 0
-    var max_image_height_in_row: int = 0
-    var texture_list: Array[TextureRect] = []
-    for file_path: String in files:
-        if not file_path.is_empty():
+    if self.cur_mode == ToolMode.PACK_IMAGES:
+        var current_x: int= 0
+        var current_y: int = 0
+        var max_image_height_in_row: int = 0
+        var texture_list: Array[TextureRect] = []
+        for file_path: String in files:
             texture_list.append(self.load_image_as_texture(file_path))
-    var cur_index: int = 0
-    var cur_viewport: SubViewport = SubViewport.new()
-    #cur_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-    while cur_index < texture_list.size():
-        var texture_rect: TextureRect = texture_list[cur_index]
-        var image_size: Vector2 = texture_rect.texture.get_size()
-        if current_x + image_size.x + margin_value > max_size_x:
-            current_x = 0
-            current_y += max_image_height_in_row + margin_value
-            max_image_height_in_row = 0
-        if current_y + image_size.y > max_size_y:
-            self.preview_viewport_list.append(cur_viewport)
-            cur_viewport.size = Vector2(max_size_x, current_y + max_image_height_in_row)
-            cur_viewport = SubViewport.new()
-            #cur_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-            current_x = 0
-            current_y = 0
-            continue
-        texture_rect.position = Vector2(current_x, current_y)
-        current_x += image_size.x + margin_value
-        max_image_height_in_row = max(max_image_height_in_row, image_size.y)
+        var cur_index: int = 0
+        var cur_viewport: SubViewport = SubViewport.new()
+        while cur_index < texture_list.size():
+            var texture_rect: TextureRect = texture_list[cur_index]
+            var image_size: Vector2 = texture_rect.texture.get_size()
+            if current_x + image_size.x + margin_value > max_size_x:
+                current_x = 0
+                current_y += max_image_height_in_row + margin_value
+                max_image_height_in_row = 0
+            if current_y + image_size.y > max_size_y:
+                self.preview_viewport_list.append(cur_viewport)
+                cur_viewport.size = Vector2(max_size_x, current_y + max_image_height_in_row)
+                cur_viewport = SubViewport.new()
+                current_x = 0
+                current_y = 0
+                continue
+            texture_rect.position = Vector2(current_x, current_y)
+            current_x += image_size.x + margin_value
+            max_image_height_in_row = max(max_image_height_in_row, image_size.y)
+            cur_viewport.add_child(texture_rect)
+            cur_index += 1
+        cur_viewport.size = Vector2(max_size_x, current_y + max_image_height_in_row)
+        self.preview_viewport_list.append(cur_viewport)
+        self.update_preview_num_text()
+        self.update_preview_image()
+    elif self.cur_mode == ToolMode.SPLIT_IMAGES:
+        var texture_rect: TextureRect = self.load_image_as_texture(self.selected_file_for_split)
+        var cur_viewport: SubViewport = SubViewport.new()
+        cur_viewport.size = texture_rect.texture.get_size()
         cur_viewport.add_child(texture_rect)
-        cur_index += 1
-    cur_viewport.size = Vector2(max_size_x, current_y + max_image_height_in_row)
-    self.preview_viewport_list.append(cur_viewport)
-    self.update_preview_num_text()
-    self.update_preview_image()
+        self.preview_viewport_list.append(cur_viewport)
+        self.update_preview_num_text()
+        self.update_preview_image()
 
 func update_preview_num_text() -> void:
     self.page_number.text = "%d/%d" % [self.preview_cur_viewport_index + 1, self.preview_viewport_list.size()]
@@ -221,43 +263,16 @@ func clear_selected_files_edit() -> void:
 
 func update_selected_files_edit() -> void:
     var files_str: String = ""
-    for file in self.selected_files:
-        files_str += "%s\n" % file
+    if self.cur_mode == ToolMode.PACK_IMAGES:
+        for file in self.selected_files_for_pack:
+            files_str += "%s\n" % file
+    elif self.cur_mode == ToolMode.SPLIT_IMAGES:
+        files_str = self.selected_file_for_split
     self.selected_files_edit.text = files_str
 
 func _on_test_1_pressed() -> void:
     self.clear_preview_images()
     var files: PackedStringArray = PackedStringArray()
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Dead_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Idle_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Jump_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/JumpAttack_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Run_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Walk_%d.png" % i)
-        
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Dead_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Idle_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Jump_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/JumpAttack_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Run_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Walk_%d.png" % i)
-        
     for i in range(1, 11):
         files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
     for i in range(1, 11):
