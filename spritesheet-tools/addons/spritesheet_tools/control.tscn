@@ -246,13 +246,29 @@ anchor_left = 0.984
 anchor_top = 1.091
 anchor_right = 0.984
 anchor_bottom = 1.091
-offset_left = -329.4
+offset_left = -198.4
 offset_top = -198.4
 offset_right = -11.4001
 offset_bottom = -155.4
 grow_horizontal = 0
 grow_vertical = 0
 text = "Test1"
+
+[node name="Test2" type="Button" parent="."]
+top_level = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.984
+anchor_top = 1.091
+anchor_right = 0.984
+anchor_bottom = 1.091
+offset_left = -434.4
+offset_top = -198.4
+offset_right = -247.4
+offset_bottom = -155.4
+grow_horizontal = 0
+grow_vertical = 0
+text = "Test2"
 
 [node name="ErrorDialog" type="AcceptDialog" parent="."]
 title = "Error"
@@ -302,3 +318,4 @@ value = 0.3
 [connection signal="pressed" from="PageSwitchContainer/Left" to="." method="_on_page_left_pressed"]
 [connection signal="pressed" from="PageSwitchContainer/Right" to="." method="_on_page_right_pressed"]
 [connection signal="pressed" from="Test1" to="." method="_on_test_1_pressed"]
+[connection signal="pressed" from="Test2" to="." method="_on_test_2_pressed"]

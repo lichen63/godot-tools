@@ -7,6 +7,12 @@ enum ToolMode {
 }
 
 const EXPORT_FILE_NAME_FORMAT = "export_%d.png"
+const SIZE_X_DEFAULT_VALUE_FOR_PACK = "2048"
+const SIZE_Y_DEFAULT_VALUE_FOR_PACK = "1024"
+const SIZE_MARGIN_DEFAULT_VALUE_FOR_PACK = "1"
+const SIZE_X_DEFAULT_VALUE_FOR_SPLIT = "128"
+const SIZE_Y_DEFAULT_VALUE_FOR_SPLIT = "128"
+const SIZE_MARGIN_DEFAULT_VALUE_FOR_SPLIT = "1"
 
 var cur_mode: ToolMode = ToolMode.PACK_IMAGES
 var selected_files_for_pack: PackedStringArray = PackedStringArray()
@@ -14,6 +20,7 @@ var selected_file_for_split: String = ""
 var preview_viewport_list: Array[SubViewport] = []
 var preview_cur_viewport_index: int = 0
 
+@onready var option_button: OptionButton = $ModeContainer/ModeOption
 @onready var select_file_dialog: FileDialog = $SelectFileDialog
 @onready var size_x_edit: LineEdit = $PropertyContainer/SizeProperty/SizeValue/X
 @onready var size_y_edit: LineEdit = $PropertyContainer/SizeProperty/SizeValue/Y
@@ -33,8 +40,14 @@ func _on_mode_option_item_selected(index: int) -> void:
     match index:
         0:
             self.cur_mode = ToolMode.PACK_IMAGES
+            self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_PACK
+            self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_PACK
+            self.margin_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_PACK
         1:
             self.cur_mode = ToolMode.SPLIT_IMAGES
+            self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
+            self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
+            self.margin_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_SPLIT
         _:
             self.show_error_with_message("Unknown tool mode selected")
 
@@ -204,7 +217,7 @@ func show_error_with_message(message: String) -> void:
     self.error_dialog.dialog_text = message
     self.error_dialog.show()
 
-func show_images_on_preview(files: PackedStringArray = self.selected_files_for_pack) -> void:
+func show_images_on_preview() -> void:
     var margin_value: int = self.get_and_validate_input(self.margin_edit)
     var max_size_x: int = self.get_and_validate_input(self.size_x_edit)
     var max_size_y: int= self.get_and_validate_input(self.size_y_edit)
@@ -213,7 +226,7 @@ func show_images_on_preview(files: PackedStringArray = self.selected_files_for_p
         var current_y: int = 0
         var max_image_height_in_row: int = 0
         var texture_list: Array[TextureRect] = []
-        for file_path: String in files:
+        for file_path: String in self.selected_files_for_pack:
             texture_list.append(self.load_image_as_texture(file_path))
         var cur_index: int = 0
         var cur_viewport: SubViewport = SubViewport.new()
@@ -273,19 +286,28 @@ func update_selected_files_edit() -> void:
 func _on_test_1_pressed() -> void:
     self.clear_preview_images()
     var files: PackedStringArray = PackedStringArray()
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Dead_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Idle_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Jump_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/JumpAttack_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Run_%d.png" % i)
-    for i in range(1, 11):
-        files.append("res://sample/sprite_images/character/Walk_%d.png" % i)
-        
-    self.show_images_on_preview(files)
+    for index in range(0, 5):
+        for i in range(1, 11):
+            files.append("res://sample/sprite_images/character/Attack_%d.png" % i)
+        for i in range(1, 11):
+            files.append("res://sample/sprite_images/character/Dead_%d.png" % i)
+        for i in range(1, 11):
+            files.append("res://sample/sprite_images/character/Idle_%d.png" % i)
+        for i in range(1, 11):
+            files.append("res://sample/sprite_images/character/Jump_%d.png" % i)
+        for i in range(1, 11):
+            files.append("res://sample/sprite_images/character/JumpAttack_%d.png" % i)
+        for i in range(1, 11):
+            files.append("res://sample/sprite_images/character/Run_%d.png" % i)
+        for i in range(1, 11):
+            files.append("res://sample/sprite_images/character/Walk_%d.png" % i)
+    self.selected_files_for_pack = files
+    self.option_button.select(1)
+    self.show_images_on_preview()
+
+
+func _on_test_2_pressed() -> void:
+    self.clear_preview_images()
+    self.selected_file_for_split = "res://sample/spritesheet/sheet.png"
+    self.option_button.select(1)
+    self.show_images_on_preview()
