@@ -34,6 +34,7 @@ var preview_cur_viewport_index: int = 0
 @onready var progress_panel: PopupPanel = $ProgressPopupPanel
 @onready var progress_bar: ProgressBar = $ProgressPopupPanel/ProgressBar
 @onready var selected_files_edit: TextEdit = $PropertyContainer/FilePath
+@onready var preview_split_grid_container: Control = $Preview/GridContainer
 
 
 func _on_mode_option_item_selected(index: int) -> void:
@@ -65,19 +66,12 @@ func _on_reload_file_pressed() -> void:
         for file_path in text_in_edit.split("\n"):
             if FileAccess.file_exists(file_path):
                 self.selected_files_for_pack.append(file_path)
-        self.clear_selected_files_edit()
-        self.update_selected_files_edit()
-        self.clear_preview_images()
-        self.show_images_on_preview()
     elif self.cur_mode == ToolMode.SPLIT_IMAGES:
         if not FileAccess.file_exists(text_in_edit):
             self.show_error_with_message("File path is not a valid path or file does not exist")
             return
         self.selected_file_for_split = text_in_edit
-        self.clear_selected_files_edit()
-        self.update_selected_files_edit()
-        self.clear_preview_images()
-        self.show_images_on_preview()
+    self.clear_and_reload()
 
 func _on_select_file_dialog_file_selected(path: String) -> void:
     if self.cur_mode == ToolMode.PACK_IMAGES:
@@ -89,17 +83,13 @@ func _on_select_file_dialog_files_selected(paths: PackedStringArray) -> void:
     self.selected_files_for_pack = paths
     
 func _on_select_file_dialog_confirmed() -> void:
-    self.clear_selected_files_edit()
-    self.update_selected_files_edit()
-    self.clear_preview_images()
-    self.show_images_on_preview()
+    self.clear_and_reload()
 
 func _on_select_file_dialog_canceled() -> void:
     pass
 
 func _on_generate_pressed() -> void:
-    self.clear_preview_images()
-    self.show_images_on_preview()
+    self.clear_and_reload()
 
 func _on_page_left_pressed() -> void:
     self.show_next_or_prev_viewport(false)
@@ -144,6 +134,14 @@ func _on_save_to_file_pressed() -> void:
     await self.get_tree().create_timer(1).timeout
     self.progress_panel.hide()
     self.save_image_panel.hide()
+
+func clear_and_reload() -> void:
+    self.clear_selected_files_edit()
+    self.update_selected_files_edit()
+    self.clear_preview_images()
+    self.show_images_on_preview()
+    if self.cur_mode == ToolMode.SPLIT_IMAGES:
+        self.show_grid_lines()
 
 func get_next_savable_file_path(save_path: String) -> String:
     var index: int = 0
@@ -205,6 +203,7 @@ func clear_preview_images() -> void:
     for child in self.preview_viewport_container.get_children():
         self.preview_viewport_container.remove_child(child)
         child.queue_free()
+    self.hide_grid_lines()
 
 func get_and_validate_input(input: LineEdit) -> int:
     var text:String = input.text
@@ -283,6 +282,43 @@ func update_selected_files_edit() -> void:
         files_str = self.selected_file_for_split
     self.selected_files_edit.text = files_str
 
+func show_grid_lines() -> void:
+    var margin_value: int = self.get_and_validate_input(self.margin_edit)
+    var cell_width: int = self.get_and_validate_input(self.size_x_edit)
+    var cell_height: int= self.get_and_validate_input(self.size_y_edit)
+    if self.preview_viewport_list.is_empty():
+        return
+    var cur_viewport: SubViewport = self.preview_viewport_list.front()
+    var viewport_size: Vector2 = cur_viewport.size
+    for child in self.preview_split_grid_container.get_children():
+        self.preview_split_grid_container.remove_child(child)
+        child.queue_free()
+    self.preview_split_grid_container.show()
+    var grid_width: float = viewport_size.x - 2 * margin_value
+    var grid_height: float = viewport_size.y - 2 * margin_value
+    var num_columns: int = floor(grid_width / cell_width)
+    var num_rows: int = floor(grid_height / cell_height)
+    for x in range(1, num_columns + 1):
+        var x_pos: float = margin_value + x * cell_width
+        var vertical_line: ColorRect = ColorRect.new()
+        vertical_line.color = Color(1, 1, 1, 1)
+        vertical_line.size = Vector2(1, grid_height)
+        vertical_line.position = Vector2(x_pos, margin_value)
+        self.preview_split_grid_container.add_child(vertical_line)
+    for y in range(1, num_rows + 1):
+        var y_pos: float = margin_value + y * cell_height
+        var horizontal_line: ColorRect = ColorRect.new()
+        horizontal_line.color = Color(1, 1, 1, 1)
+        horizontal_line.size = Vector2(grid_width, 1)
+        horizontal_line.position = Vector2(margin_value, y_pos)
+        self.preview_split_grid_container.add_child(horizontal_line)
+
+func hide_grid_lines() -> void:
+    for child in self.preview_split_grid_container.get_children():
+        self.preview_split_grid_container.remove_child(child)
+        child.queue_free()
+    self.preview_split_grid_container.hide()
+
 func _on_test_1_pressed() -> void:
     self.clear_preview_images()
     var files: PackedStringArray = PackedStringArray()
@@ -302,12 +338,14 @@ func _on_test_1_pressed() -> void:
         for i in range(1, 11):
             files.append("res://sample/sprite_images/character/Walk_%d.png" % i)
     self.selected_files_for_pack = files
-    self.option_button.select(1)
-    self.show_images_on_preview()
-
+    self.cur_mode = ToolMode.PACK_IMAGES
+    self.clear_and_reload()
 
 func _on_test_2_pressed() -> void:
     self.clear_preview_images()
     self.selected_file_for_split = "res://sample/spritesheet/sheet.png"
-    self.option_button.select(1)
-    self.show_images_on_preview()
+    self.cur_mode = ToolMode.SPLIT_IMAGES
+    self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
+    self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
+    self.margin_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_SPLIT
+    self.clear_and_reload()

@@ -211,6 +211,14 @@ offset_bottom = 604.0
 grow_horizontal = 0
 grow_vertical = 2
 
+[node name="GridContainer" type="Control" parent="Preview"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [node name="PageSwitchContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 1600.0
@@ -246,10 +254,10 @@ anchor_left = 0.984
 anchor_top = 1.091
 anchor_right = 0.984
 anchor_bottom = 1.091
-offset_left = -198.4
-offset_top = -198.4
-offset_right = -11.4001
-offset_bottom = -155.4
+offset_left = -192.4
+offset_top = -250.4
+offset_right = -5.40015
+offset_bottom = -207.4
 grow_horizontal = 0
 grow_vertical = 0
 text = "Test1"
@@ -262,10 +270,10 @@ anchor_left = 0.984
 anchor_top = 1.091
 anchor_right = 0.984
 anchor_bottom = 1.091
-offset_left = -434.4
-offset_top = -198.4
-offset_right = -247.4
-offset_bottom = -155.4
+offset_left = -192.4
+offset_top = -197.4
+offset_right = -5.40015
+offset_bottom = -154.4
 grow_horizontal = 0
 grow_vertical = 0
 text = "Test2"
