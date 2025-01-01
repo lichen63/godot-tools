@@ -296,22 +296,36 @@ func show_grid_lines() -> void:
     self.preview_split_grid_container.show()
     var grid_width: float = viewport_size.x - 2 * margin_value
     var grid_height: float = viewport_size.y - 2 * margin_value
-    var num_columns: int = floor(grid_width / cell_width)
-    var num_rows: int = floor(grid_height / cell_height)
-    for x in range(1, num_columns + 1):
-        var x_pos: float = margin_value + x * cell_width
+    var x_pos: float = margin_value
+    while x_pos < grid_width:
         var vertical_line: ColorRect = ColorRect.new()
         vertical_line.color = Color(1, 1, 1, 1)
         vertical_line.size = Vector2(1, grid_height)
-        vertical_line.position = Vector2(x_pos, margin_value)
+        vertical_line.position = Vector2(x_pos, 0) 
         self.preview_split_grid_container.add_child(vertical_line)
-    for y in range(1, num_rows + 1):
-        var y_pos: float = margin_value + y * cell_height
+        x_pos += margin_value
+        if x_pos < grid_width:
+            var vertical_line_cell: ColorRect = ColorRect.new()
+            vertical_line_cell.color = Color(1, 1, 1, 1)
+            vertical_line_cell.size = Vector2(1, grid_height)
+            vertical_line_cell.position = Vector2(x_pos, 0)
+            self.preview_split_grid_container.add_child(vertical_line_cell)
+        x_pos += cell_width
+    var y_pos: float = margin_value
+    while y_pos < grid_height:
         var horizontal_line: ColorRect = ColorRect.new()
         horizontal_line.color = Color(1, 1, 1, 1)
         horizontal_line.size = Vector2(grid_width, 1)
-        horizontal_line.position = Vector2(margin_value, y_pos)
+        horizontal_line.position = Vector2(0, y_pos)
         self.preview_split_grid_container.add_child(horizontal_line)
+        y_pos += margin_value
+        if y_pos < grid_height:
+            var horizontal_line_cell: ColorRect = ColorRect.new()
+            horizontal_line_cell.color = Color(1, 1, 1, 1)
+            horizontal_line_cell.size = Vector2(grid_width, 1)
+            horizontal_line_cell.position = Vector2(0, y_pos)
+            self.preview_split_grid_container.add_child(horizontal_line_cell)
+        y_pos += cell_height
 
 func hide_grid_lines() -> void:
     for child in self.preview_split_grid_container.get_children():
