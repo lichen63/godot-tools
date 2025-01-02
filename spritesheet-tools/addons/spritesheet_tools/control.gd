@@ -6,13 +6,12 @@ enum ToolMode {
     SPLIT_IMAGES
 }
 
-const EXPORT_FILE_NAME_FORMAT = "export_%d.png"
-const SIZE_X_DEFAULT_VALUE_FOR_PACK = "2048"
-const SIZE_Y_DEFAULT_VALUE_FOR_PACK = "1024"
-const SIZE_MARGIN_DEFAULT_VALUE_FOR_PACK = "1"
-const SIZE_X_DEFAULT_VALUE_FOR_SPLIT = "128"
-const SIZE_Y_DEFAULT_VALUE_FOR_SPLIT = "128"
-const SIZE_MARGIN_DEFAULT_VALUE_FOR_SPLIT = "1"
+const EXPORT_FILE_NAME_FORMAT: String = "export_%d.png"
+const SIZE_X_DEFAULT_VALUE_FOR_PACK: String = "2048"
+const SIZE_Y_DEFAULT_VALUE_FOR_PACK: String = "1024"
+const SIZE_X_DEFAULT_VALUE_FOR_SPLIT: String = "128"
+const SIZE_Y_DEFAULT_VALUE_FOR_SPLIT: String = "128"
+const SEPARATION_DEFAULT_VALUE: String = "1"
 
 var cur_mode: ToolMode = ToolMode.PACK_IMAGES
 var selected_files_for_pack: PackedStringArray = PackedStringArray()
@@ -24,8 +23,8 @@ var preview_cur_viewport_index: int = 0
 @onready var select_file_dialog: FileDialog = $SelectFileDialog
 @onready var size_x_edit: LineEdit = $PropertyContainer/SizeProperty/SizeValue/X
 @onready var size_y_edit: LineEdit = $PropertyContainer/SizeProperty/SizeValue/Y
-@onready var margin_x_edit: LineEdit = $PropertyContainer/MarginProperty/MarginValue/X
-@onready var margin_y_edit: LineEdit = $PropertyContainer/MarginProperty/MarginValue/Y
+@onready var separation_x_edit: LineEdit = $PropertyContainer/SeparationProperty/SeparationValue/X
+@onready var separation_y_edit: LineEdit = $PropertyContainer/SeparationProperty/SeparationValue/Y
 @onready var error_dialog: AcceptDialog = $ErrorDialog
 @onready var page_number: LineEdit = $PageSwitchContainer/Number
 @onready var save_path_edit: LineEdit = $PropertyContainer/SavePath
@@ -44,14 +43,14 @@ func _on_mode_option_item_selected(index: int) -> void:
             self.cur_mode = ToolMode.PACK_IMAGES
             self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_PACK
             self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_PACK
-            self.margin_x_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_PACK
-            self.margin_y_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_PACK
+            self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
+            self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
         1:
             self.cur_mode = ToolMode.SPLIT_IMAGES
             self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
             self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
-            self.margin_x_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_SPLIT
-            self.margin_y_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_SPLIT
+            self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
+            self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
         _:
             self.show_error_with_message("Unknown tool mode selected")
 
@@ -220,8 +219,8 @@ func show_error_with_message(message: String) -> void:
     self.error_dialog.show()
 
 func show_images_on_preview() -> void:
-    var margin_x: int = self.get_and_validate_input(self.margin_x_edit)
-    var margin_y: int = self.get_and_validate_input(self.margin_y_edit)
+    var separation_x: int = self.get_and_validate_input(self.separation_x_edit)
+    var separation_y: int = self.get_and_validate_input(self.separation_y_edit)
     var max_size_x: int = self.get_and_validate_input(self.size_x_edit)
     var max_size_y: int= self.get_and_validate_input(self.size_y_edit)
     if self.cur_mode == ToolMode.PACK_IMAGES:
@@ -236,9 +235,9 @@ func show_images_on_preview() -> void:
         while cur_index < texture_list.size():
             var texture_rect: TextureRect = texture_list[cur_index]
             var image_size: Vector2 = texture_rect.texture.get_size()
-            if current_x + image_size.x + margin_x > max_size_x:
+            if current_x + image_size.x > max_size_x:
                 current_x = 0
-                current_y += max_image_height_in_row + margin_y
+                current_y += max_image_height_in_row + separation_y
                 max_image_height_in_row = 0
             if current_y + image_size.y > max_size_y:
                 self.preview_viewport_list.append(cur_viewport)
@@ -248,7 +247,7 @@ func show_images_on_preview() -> void:
                 current_y = 0
                 continue
             texture_rect.position = Vector2(current_x, current_y)
-            current_x += image_size.x + margin_x
+            current_x += image_size.x + separation_x
             max_image_height_in_row = max(max_image_height_in_row, image_size.y)
             cur_viewport.add_child(texture_rect)
             cur_index += 1
@@ -287,8 +286,8 @@ func update_selected_files_edit() -> void:
     self.selected_files_edit.text = files_str
 
 func show_grid_lines() -> void:
-    var margin_x: int = self.get_and_validate_input(self.margin_x_edit)
-    var margin_y: int = self.get_and_validate_input(self.margin_y_edit)
+    var separation_x: int = self.get_and_validate_input(self.separation_x_edit)
+    var separation_y: int = self.get_and_validate_input(self.separation_y_edit)
     var cell_width: int = self.get_and_validate_input(self.size_x_edit)
     var cell_height: int= self.get_and_validate_input(self.size_y_edit)
     if self.preview_viewport_list.is_empty():
@@ -299,16 +298,16 @@ func show_grid_lines() -> void:
         self.preview_split_grid_container.remove_child(child)
         child.queue_free()
     self.preview_split_grid_container.show()
-    var grid_width: float = viewport_size.x - 2 * margin_x
-    var grid_height: float = viewport_size.y - 2 * margin_y
-    var x_pos: float = margin_x
+    var grid_width: float = viewport_size.x - 2 * separation_x
+    var grid_height: float = viewport_size.y - 2 * separation_y
+    var x_pos: float = separation_x
     while x_pos < grid_width:
         var vertical_line: ColorRect = ColorRect.new()
         vertical_line.color = Color(1, 1, 1, 1)
         vertical_line.size = Vector2(1, grid_height)
         vertical_line.position = Vector2(x_pos, 0) 
         self.preview_split_grid_container.add_child(vertical_line)
-        x_pos += margin_x
+        x_pos += separation_x
         if x_pos < grid_width:
             var vertical_line_cell: ColorRect = ColorRect.new()
             vertical_line_cell.color = Color(1, 1, 1, 1)
@@ -316,14 +315,14 @@ func show_grid_lines() -> void:
             vertical_line_cell.position = Vector2(x_pos, 0)
             self.preview_split_grid_container.add_child(vertical_line_cell)
         x_pos += cell_width
-    var y_pos: float = margin_y
+    var y_pos: float = separation_y
     while y_pos < grid_height:
         var horizontal_line: ColorRect = ColorRect.new()
         horizontal_line.color = Color(1, 1, 1, 1)
         horizontal_line.size = Vector2(grid_width, 1)
         horizontal_line.position = Vector2(0, y_pos)
         self.preview_split_grid_container.add_child(horizontal_line)
-        y_pos += margin_y
+        y_pos += separation_y
         if y_pos < grid_height:
             var horizontal_line_cell: ColorRect = ColorRect.new()
             horizontal_line_cell.color = Color(1, 1, 1, 1)
@@ -366,6 +365,6 @@ func _on_test_2_pressed() -> void:
     self.cur_mode = ToolMode.SPLIT_IMAGES
     self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
     self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
-    self.margin_x_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_SPLIT
-    self.margin_y_edit.text = SIZE_MARGIN_DEFAULT_VALUE_FOR_SPLIT
+    self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
+    self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
     self.clear_and_reload()

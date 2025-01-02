@@ -101,34 +101,34 @@ text = "1024"
 placeholder_text = "1024"
 max_length = 6
 
-[node name="MarginProperty" type="HBoxContainer" parent="PropertyContainer"]
+[node name="SeparationProperty" type="HBoxContainer" parent="PropertyContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="MarginLabel" type="VBoxContainer" parent="PropertyContainer/MarginProperty"]
+[node name="SeparationLabel" type="VBoxContainer" parent="PropertyContainer/SeparationProperty"]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="X" type="Label" parent="PropertyContainer/MarginProperty/MarginLabel"]
+[node name="X" type="Label" parent="PropertyContainer/SeparationProperty/SeparationLabel"]
 layout_mode = 2
 text = "Margin X:"
 
-[node name="Y" type="Label" parent="PropertyContainer/MarginProperty/MarginLabel"]
+[node name="Y" type="Label" parent="PropertyContainer/SeparationProperty/SeparationLabel"]
 layout_mode = 2
 text = "Margin Y:"
 
-[node name="MarginValue" type="VBoxContainer" parent="PropertyContainer/MarginProperty"]
+[node name="SeparationValue" type="VBoxContainer" parent="PropertyContainer/SeparationProperty"]
 layout_mode = 2
 
-[node name="X" type="LineEdit" parent="PropertyContainer/MarginProperty/MarginValue"]
+[node name="X" type="LineEdit" parent="PropertyContainer/SeparationProperty/SeparationValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
 text = "1"
 placeholder_text = "1"
 max_length = 6
 
-[node name="Y" type="LineEdit" parent="PropertyContainer/MarginProperty/MarginValue"]
+[node name="Y" type="LineEdit" parent="PropertyContainer/SeparationProperty/SeparationValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
 text = "1"
