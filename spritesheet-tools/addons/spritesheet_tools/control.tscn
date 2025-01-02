@@ -105,11 +105,30 @@ max_length = 6
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Label" type="Label" parent="PropertyContainer/MarginProperty"]
+[node name="MarginLabel" type="VBoxContainer" parent="PropertyContainer/MarginProperty"]
 layout_mode = 2
-text = "Margin:"
+theme_override_constants/separation = 10
+alignment = 1
 
-[node name="Value" type="LineEdit" parent="PropertyContainer/MarginProperty"]
+[node name="X" type="Label" parent="PropertyContainer/MarginProperty/MarginLabel"]
+layout_mode = 2
+text = "Margin X:"
+
+[node name="Y" type="Label" parent="PropertyContainer/MarginProperty/MarginLabel"]
+layout_mode = 2
+text = "Margin Y:"
+
+[node name="MarginValue" type="VBoxContainer" parent="PropertyContainer/MarginProperty"]
+layout_mode = 2
+
+[node name="X" type="LineEdit" parent="PropertyContainer/MarginProperty/MarginValue"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+text = "1"
+placeholder_text = "1"
+max_length = 6
+
+[node name="Y" type="LineEdit" parent="PropertyContainer/MarginProperty/MarginValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
 text = "1"
