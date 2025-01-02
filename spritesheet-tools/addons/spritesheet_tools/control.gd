@@ -25,6 +25,8 @@ var preview_cur_viewport_index: int = 0
 @onready var size_y_edit: LineEdit = $PropertyContainer/SizeProperty/SizeValue/Y
 @onready var separation_x_edit: LineEdit = $PropertyContainer/SeparationProperty/SeparationValue/X
 @onready var separation_y_edit: LineEdit = $PropertyContainer/SeparationProperty/SeparationValue/Y
+@onready var offset_x_edit: LineEdit = $PropertyContainer/OffsetProperty/OffestValue/X
+@onready var offset_y_edit: LineEdit = $PropertyContainer/OffsetProperty/OffestValue/Y
 @onready var error_dialog: AcceptDialog = $ErrorDialog
 @onready var page_number: LineEdit = $PageSwitchContainer/Number
 @onready var save_path_edit: LineEdit = $PropertyContainer/SavePath
@@ -223,9 +225,11 @@ func show_images_on_preview() -> void:
     var separation_y: int = self.get_and_validate_input(self.separation_y_edit)
     var max_size_x: int = self.get_and_validate_input(self.size_x_edit)
     var max_size_y: int= self.get_and_validate_input(self.size_y_edit)
+    var offset_x: int = self.get_and_validate_input(self.offset_x_edit)
+    var offset_y: int = self.get_and_validate_input(self.offset_y_edit)
     if self.cur_mode == ToolMode.PACK_IMAGES:
-        var current_x: int= 0
-        var current_y: int = 0
+        var current_x: int = offset_x
+        var current_y: int = offset_y
         var max_image_height_in_row: int = 0
         var texture_list: Array[TextureRect] = []
         for file_path: String in self.selected_files_for_pack:
@@ -236,15 +240,15 @@ func show_images_on_preview() -> void:
             var texture_rect: TextureRect = texture_list[cur_index]
             var image_size: Vector2 = texture_rect.texture.get_size()
             if current_x + image_size.x > max_size_x:
-                current_x = 0
+                current_x = offset_x
                 current_y += max_image_height_in_row + separation_y
                 max_image_height_in_row = 0
             if current_y + image_size.y > max_size_y:
                 self.preview_viewport_list.append(cur_viewport)
                 cur_viewport.size = Vector2(max_size_x, current_y + max_image_height_in_row)
                 cur_viewport = SubViewport.new()
-                current_x = 0
-                current_y = 0
+                current_x = offset_x
+                current_y = offset_y
                 continue
             texture_rect.position = Vector2(current_x, current_y)
             current_x += image_size.x + separation_x
@@ -290,6 +294,8 @@ func show_grid_lines() -> void:
     var separation_y: int = self.get_and_validate_input(self.separation_y_edit)
     var cell_width: int = self.get_and_validate_input(self.size_x_edit)
     var cell_height: int= self.get_and_validate_input(self.size_y_edit)
+    var offset_x: int = self.get_and_validate_input(self.offset_x_edit)
+    var offset_y: int = self.get_and_validate_input(self.offset_y_edit)
     if self.preview_viewport_list.is_empty():
         return
     var cur_viewport: SubViewport = self.preview_viewport_list.front()
@@ -300,7 +306,7 @@ func show_grid_lines() -> void:
     self.preview_split_grid_container.show()
     var grid_width: float = viewport_size.x - 2 * separation_x
     var grid_height: float = viewport_size.y - 2 * separation_y
-    var x_pos: float = separation_x
+    var x_pos: float = offset_x
     while x_pos < grid_width:
         var vertical_line: ColorRect = ColorRect.new()
         vertical_line.color = Color(1, 1, 1, 1)
@@ -315,7 +321,7 @@ func show_grid_lines() -> void:
             vertical_line_cell.position = Vector2(x_pos, 0)
             self.preview_split_grid_container.add_child(vertical_line_cell)
         x_pos += cell_width
-    var y_pos: float = separation_y
+    var y_pos: float = offset_y
     while y_pos < grid_height:
         var horizontal_line: ColorRect = ColorRect.new()
         horizontal_line.color = Color(1, 1, 1, 1)

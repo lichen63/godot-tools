@@ -101,6 +101,40 @@ text = "1024"
 placeholder_text = "1024"
 max_length = 6
 
+[node name="OffsetProperty" type="HBoxContainer" parent="PropertyContainer"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="OffsetLabel" type="VBoxContainer" parent="PropertyContainer/OffsetProperty"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+
+[node name="X" type="Label" parent="PropertyContainer/OffsetProperty/OffsetLabel"]
+layout_mode = 2
+text = "Offset X:"
+
+[node name="Y" type="Label" parent="PropertyContainer/OffsetProperty/OffsetLabel"]
+layout_mode = 2
+text = "Offset Y:"
+
+[node name="OffestValue" type="VBoxContainer" parent="PropertyContainer/OffsetProperty"]
+layout_mode = 2
+
+[node name="X" type="LineEdit" parent="PropertyContainer/OffsetProperty/OffestValue"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+text = "0"
+placeholder_text = "0"
+max_length = 6
+
+[node name="Y" type="LineEdit" parent="PropertyContainer/OffsetProperty/OffestValue"]
+custom_minimum_size = Vector2(250, 35)
+layout_mode = 2
+text = "0"
+placeholder_text = "0"
+max_length = 6
+
 [node name="SeparationProperty" type="HBoxContainer" parent="PropertyContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
