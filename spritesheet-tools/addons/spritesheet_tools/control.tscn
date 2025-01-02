@@ -78,11 +78,11 @@ theme_override_constants/separation = 10
 
 [node name="X" type="Label" parent="PropertyContainer/SizeProperty/SizeLabel"]
 layout_mode = 2
-text = "X:"
+text = "Width:"
 
 [node name="Y" type="Label" parent="PropertyContainer/SizeProperty/SizeLabel"]
 layout_mode = 2
-text = "Y:"
+text = "Height:"
 
 [node name="SizeValue" type="VBoxContainer" parent="PropertyContainer/SizeProperty"]
 layout_mode = 2
