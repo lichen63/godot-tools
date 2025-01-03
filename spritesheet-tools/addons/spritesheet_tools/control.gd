@@ -18,6 +18,7 @@ var selected_files_for_pack: PackedStringArray = PackedStringArray()
 var selected_file_for_split: String = ""
 var preview_viewport_list: Array[SubViewport] = []
 var preview_cur_viewport_index: int = 0
+var cached_split_images: Array[Image] = []
 
 @onready var option_button: OptionButton = $ModeContainer/ModeOption
 @onready var select_file_dialog: FileDialog = $SelectFileDialog
@@ -106,38 +107,41 @@ func _on_save_to_file_pressed() -> void:
     if not self.is_save_path_valid(save_path_string):
         self.show_error_with_message("Invalid save path.")
         return
-    self.save_image_panel.show()
     self.progress_panel.show()
     self.progress_bar.value = 0
-    var index: int = 0
-    for viewport in self.preview_viewport_list:
-        var file_path: String = self.get_next_savable_file_path(save_path_string)
-        if file_path.is_empty():
-            return
-        for child in self.save_image_container.get_children():
-            self.save_image_container.remove_child(child)
-            child.queue_free()
-        var dup_viewport = viewport.duplicate()
-        self.save_image_container.add_child(dup_viewport)
-        await self.get_tree().create_timer(1).timeout
-        var texture: ViewportTexture = dup_viewport.get_texture()
-        if not texture:
-            print("Failed to get texture")
-            return
-        var image: Image = texture.get_image()
-        if image:
-            var err = image.save_png(file_path)
-            if err == OK:
-                print("Image saved successfully at: ", file_path)
-            else:
-                print("Failed to save image, Error: ", err)
-        else:
-            print("Failed to convert texture to image")
-        self.create_tween().tween_property(self.progress_bar, "value", (index+1.0) / self.preview_viewport_list.size(), 0.6)
-        index += 1
+    if self.cur_mode == ToolMode.PACK_IMAGES:
+        self.save_image_panel.show()
+        var index: int = 0
+        for viewport in self.preview_viewport_list:
+            var file_path: String = self.get_next_savable_file_path(save_path_string)
+            if file_path.is_empty():
+                break
+            for child in self.save_image_container.get_children():
+                self.save_image_container.remove_child(child)
+                child.queue_free()
+            var dup_viewport = viewport.duplicate()
+            self.save_image_container.add_child(dup_viewport)
+            await self.get_tree().create_timer(1).timeout
+            var texture: ViewportTexture = dup_viewport.get_texture()
+            var image: Image = texture.get_image()
+            var err: Error = image.save_png(file_path)
+            print("Save image: %s, err: %d" % [file_path, err])
+            self.create_tween().tween_property(self.progress_bar, "value", (index + 1.0) / self.preview_viewport_list.size(), 0.6)
+            index += 1
+        self.save_image_panel.hide()
+    elif self.cur_mode == ToolMode.SPLIT_IMAGES:
+        var index: int = 0
+        var cached_image_size: int = self.cached_split_images.size()
+        for image: Image in self.cached_split_images:
+            var file_path: String = self.get_next_savable_file_path(save_path_string)
+            if file_path.is_empty():
+                break
+            var err: Error = image.save_png(file_path)
+            print("Save image: %s, err: %d" % [file_path, err])
+            self.progress_bar.value = (index + 1.0) / cached_image_size
+            index += 1
     await self.get_tree().create_timer(1).timeout
     self.progress_panel.hide()
-    self.save_image_panel.hide()
 
 func clear_and_reload() -> void:
     self.clear_selected_files_edit()
@@ -145,7 +149,9 @@ func clear_and_reload() -> void:
     self.clear_preview_images()
     self.show_images_on_preview()
     if self.cur_mode == ToolMode.SPLIT_IMAGES:
+        self.clear_cached_split_images()
         self.show_grid_lines()
+        self.split_images_to_cache()
 
 func get_next_savable_file_path(save_path: String) -> String:
     var index: int = 0
@@ -198,19 +204,19 @@ func load_image_as_texture(file_path: String) -> TextureRect:
     return texture_rect
 
 func clear_preview_images() -> void:
-    self.preview_viewport_list.clear()
     self.preview_cur_viewport_index = 0
     for viewport: SubViewport in self.preview_viewport_list:
         for child in viewport.get_children():
             viewport.remove_child(child)
             child.queue_free()
+    self.preview_viewport_list.clear()
     for child in self.preview_viewport_container.get_children():
         self.preview_viewport_container.remove_child(child)
         child.queue_free()
     self.hide_grid_lines()
 
 func get_and_validate_input(input: LineEdit) -> int:
-    var text:String = input.text
+    var text: String = input.text
     if not text.is_valid_int():
         self.show_error_with_message("[%s] is not a valid integer" % input.get_path())
         return input.placeholder_text.to_int()
@@ -224,7 +230,7 @@ func show_images_on_preview() -> void:
     var separation_x: int = self.get_and_validate_input(self.separation_x_edit)
     var separation_y: int = self.get_and_validate_input(self.separation_y_edit)
     var max_size_x: int = self.get_and_validate_input(self.size_x_edit)
-    var max_size_y: int= self.get_and_validate_input(self.size_y_edit)
+    var max_size_y: int = self.get_and_validate_input(self.size_y_edit)
     var offset_x: int = self.get_and_validate_input(self.offset_x_edit)
     var offset_y: int = self.get_and_validate_input(self.offset_y_edit)
     if self.cur_mode == ToolMode.PACK_IMAGES:
@@ -290,14 +296,14 @@ func update_selected_files_edit() -> void:
     self.selected_files_edit.text = files_str
 
 func show_grid_lines() -> void:
-    var separation_x: int = self.get_and_validate_input(self.separation_x_edit)
-    var separation_y: int = self.get_and_validate_input(self.separation_y_edit)
-    var cell_width: int = self.get_and_validate_input(self.size_x_edit)
-    var cell_height: int= self.get_and_validate_input(self.size_y_edit)
-    var offset_x: int = self.get_and_validate_input(self.offset_x_edit)
-    var offset_y: int = self.get_and_validate_input(self.offset_y_edit)
     if self.preview_viewport_list.is_empty():
         return
+    var offset_x: int = self.get_and_validate_input(self.offset_x_edit)
+    var offset_y: int = self.get_and_validate_input(self.offset_y_edit)
+    var cell_width: int = self.get_and_validate_input(self.size_x_edit)
+    var cell_height: int = self.get_and_validate_input(self.size_y_edit)
+    var separation_x: int = self.get_and_validate_input(self.separation_x_edit)
+    var separation_y: int = self.get_and_validate_input(self.separation_y_edit)
     var cur_viewport: SubViewport = self.preview_viewport_list.front()
     var viewport_size: Vector2 = cur_viewport.size
     for child in self.preview_split_grid_container.get_children():
@@ -311,7 +317,7 @@ func show_grid_lines() -> void:
         var vertical_line: ColorRect = ColorRect.new()
         vertical_line.color = Color(1, 1, 1, 1)
         vertical_line.size = Vector2(1, grid_height)
-        vertical_line.position = Vector2(x_pos, 0) 
+        vertical_line.position = Vector2(x_pos, 0)
         self.preview_split_grid_container.add_child(vertical_line)
         x_pos += separation_x
         if x_pos < grid_width:
@@ -343,8 +349,42 @@ func hide_grid_lines() -> void:
         child.queue_free()
     self.preview_split_grid_container.hide()
 
+func clear_cached_split_images() -> void:
+    self.cached_split_images.clear()
+
+func split_images_to_cache() -> void:
+    if self.preview_viewport_list.is_empty():
+        return
+    var offset_x: int = self.get_and_validate_input(self.offset_x_edit)
+    var offset_y: int = self.get_and_validate_input(self.offset_y_edit)
+    var cell_width: int = self.get_and_validate_input(self.size_x_edit)
+    var cell_height: int = self.get_and_validate_input(self.size_y_edit)
+    var separation_x: int = self.get_and_validate_input(self.separation_x_edit)
+    var separation_y: int = self.get_and_validate_input(self.separation_y_edit)
+
+    await self.get_tree().create_timer(1).timeout # Wait for the preview image to be loaded
+
+    var cur_viewport: SubViewport = self.preview_viewport_list.front()
+    var viewport_texture: ViewportTexture = cur_viewport.get_texture()
+    var viewport_image: Image = viewport_texture.get_image()
+    var x_start: int = offset_x
+    var y_start: int = offset_y
+    var x_end: int = viewport_image.get_width()
+    var y_end: int = viewport_image.get_height()
+    var index: int = 0
+    var y: int = y_start
+
+    while y + cell_height <= y_end:
+        var x = x_start
+        while x + cell_width <= x_end:
+            var sub_image: Image = Image.create_empty(cell_width, cell_height, false, viewport_image.get_format())
+            sub_image.blit_rect(viewport_image, Rect2(Vector2(x, y), Vector2(cell_width, cell_height)), Vector2(0, 0))
+            self.cached_split_images.append(sub_image)
+            x += cell_width + separation_x
+            index += 1
+        y += cell_height + separation_y
+
 func _on_test_1_pressed() -> void:
-    self.clear_preview_images()
     var files: PackedStringArray = PackedStringArray()
     for index in range(0, 5):
         for i in range(1, 11):
@@ -366,7 +406,6 @@ func _on_test_1_pressed() -> void:
     self.clear_and_reload()
 
 func _on_test_2_pressed() -> void:
-    self.clear_preview_images()
     self.selected_file_for_split = "res://sample/spritesheet/sheet.png"
     self.cur_mode = ToolMode.SPLIT_IMAGES
     self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
