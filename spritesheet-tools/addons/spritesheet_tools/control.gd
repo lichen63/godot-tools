@@ -41,20 +41,22 @@ var cached_crop_cells: Array[Image] = []
 @onready var preview_split_grid_container: Control = $Preview/GridContainer
 
 
-func _on_mode_option_item_selected(index: int) -> void:
+func _on_mode_option_item_selected(index: ToolMode) -> void:
     match index:
-        0:
+        ToolMode.PACK_IMAGES:
             self.cur_mode = ToolMode.PACK_IMAGES
             self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_PACK
             self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_PACK
             self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
             self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
-        1:
+        ToolMode.CROP_TO_CELLS:
             self.cur_mode = ToolMode.CROP_TO_CELLS
             self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
             self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
             self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
             self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
+        ToolMode.SPLIT_SINGLE_IMAGE:
+            self.cur_mode = ToolMode.SPLIT_SINGLE_IMAGE
         _:
             self.show_error_with_message("Unknown tool mode selected")
 
@@ -62,6 +64,8 @@ func _on_select_file_pressed() -> void:
     if self.cur_mode == ToolMode.PACK_IMAGES:
         self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES
     elif self.cur_mode == ToolMode.CROP_TO_CELLS:
+        self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
         self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
     self.select_file_dialog.show()
 
@@ -77,12 +81,19 @@ func _on_reload_file_pressed() -> void:
             self.show_error_with_message("File path is not a valid path or file does not exist")
             return
         self.selected_file_for_split = text_in_edit
+    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
+        if not FileAccess.file_exists(text_in_edit):
+            self.show_error_with_message("File path is not a valid path or file does not exist")
+            return
+        self.selected_file_for_split = text_in_edit
     self.clear_and_reload()
 
 func _on_select_file_dialog_file_selected(path: String) -> void:
     if self.cur_mode == ToolMode.PACK_IMAGES:
         self.selected_files_for_pack.push_back(path)
     elif self.cur_mode == ToolMode.CROP_TO_CELLS:
+        self.selected_file_for_split = path
+    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
         self.selected_file_for_split = path
 
 func _on_select_file_dialog_files_selected(paths: PackedStringArray) -> void:
@@ -141,6 +152,9 @@ func _on_save_to_file_pressed() -> void:
             print("Save image: %s, err: %d" % [file_path, err])
             self.progress_bar.value = (index + 1.0) / cached_image_size
             index += 1
+    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
+        # TODO
+        pass
     await self.get_tree().create_timer(1).timeout
     self.progress_panel.hide()
 
@@ -149,10 +163,14 @@ func clear_and_reload() -> void:
     self.update_selected_files_edit()
     self.clear_preview_images()
     self.show_images_on_preview()
-    if self.cur_mode == ToolMode.CROP_TO_CELLS:
+    if self.cur_mode == ToolMode.PACK_IMAGES:
+        pass
+    elif self.cur_mode == ToolMode.CROP_TO_CELLS:
         self.clear_cached_crop_cells()
         self.show_grid_lines()
         self.split_images_to_cache()
+    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
+        pass
 
 func get_next_savable_file_path(save_path: String) -> String:
     var index: int = 0
@@ -274,6 +292,14 @@ func show_images_on_preview() -> void:
         self.preview_viewport_list.append(cur_viewport)
         self.update_preview_num_text()
         self.update_preview_image()
+    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
+        var texture_rect: TextureRect = self.load_image_as_texture(self.selected_file_for_split)
+        var cur_viewport: SubViewport = SubViewport.new()
+        cur_viewport.size = texture_rect.texture.get_size()
+        cur_viewport.add_child(texture_rect)
+        self.preview_viewport_list.append(cur_viewport)
+        self.update_preview_num_text()
+        self.update_preview_image()
 
 func update_preview_num_text() -> void:
     self.page_number.text = "%d/%d" % [self.preview_cur_viewport_index + 1, self.preview_viewport_list.size()]
@@ -294,10 +320,12 @@ func update_selected_files_edit() -> void:
             files_str += "%s\n" % file
     elif self.cur_mode == ToolMode.CROP_TO_CELLS:
         files_str = self.selected_file_for_split
+    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
+        files_str = self.selected_file_for_split
     self.selected_files_edit.text = files_str
 
 func show_grid_lines() -> void:
-    if self.preview_viewport_list.is_empty():
+    if self.preview_viewport_list.is_empty() or self.cur_mode != ToolMode.CROP_TO_CELLS:
         return
     var offset_x: int = self.get_and_validate_input(self.offset_x_edit)
     var offset_y: int = self.get_and_validate_input(self.offset_y_edit)
@@ -354,7 +382,7 @@ func clear_cached_crop_cells() -> void:
     self.cached_crop_cells.clear()
 
 func split_images_to_cache() -> void:
-    if self.preview_viewport_list.is_empty():
+    if self.preview_viewport_list.is_empty() or self.cur_mode != ToolMode.CROP_TO_CELLS:
         return
     var offset_x: int = self.get_and_validate_input(self.offset_x_edit)
     var offset_y: int = self.get_and_validate_input(self.offset_y_edit)
@@ -413,4 +441,9 @@ func _on_test_2_pressed() -> void:
     self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
     self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
     self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
+    self.clear_and_reload()
+
+func _on_test_3_pressed() -> void:
+    self.selected_file_for_split = "res://sample/spritesheet/sheet.png"
+    self.cur_mode = ToolMode.SPLIT_SINGLE_IMAGE
     self.clear_and_reload()

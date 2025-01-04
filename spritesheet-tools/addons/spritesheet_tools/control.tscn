@@ -37,7 +37,7 @@ layout_mode = 2
 selected = 0
 item_count = 2
 popup/item_0/text = "Pack to spritesheet"
-popup/item_1/text = "Split to single image"
+popup/item_1/text = "Crop to cells"
 popup/item_1/id = 1
 
 [node name="PropertyContainer" type="VBoxContainer" parent="."]
@@ -299,38 +299,6 @@ expand_to_text_length = true
 layout_mode = 2
 texture_normal = ExtResource("2_57mpp")
 
-[node name="Test1" type="Button" parent="."]
-top_level = true
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.984
-anchor_top = 1.091
-anchor_right = 0.984
-anchor_bottom = 1.091
-offset_left = -192.4
-offset_top = -250.4
-offset_right = -5.40015
-offset_bottom = -207.4
-grow_horizontal = 0
-grow_vertical = 0
-text = "Test1"
-
-[node name="Test2" type="Button" parent="."]
-top_level = true
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.984
-anchor_top = 1.091
-anchor_right = 0.984
-anchor_bottom = 1.091
-offset_left = -192.4
-offset_top = -197.4
-offset_right = -5.40015
-offset_bottom = -154.4
-grow_horizontal = 0
-grow_vertical = 0
-text = "Test2"
-
 [node name="ErrorDialog" type="AcceptDialog" parent="."]
 title = "Error"
 initial_position = 1
@@ -367,6 +335,51 @@ max_value = 1.0
 step = 0.1
 value = 0.3
 
+[node name="Test1" type="Button" parent="."]
+top_level = true
+layout_mode = 2
+anchor_left = 0.984
+anchor_top = 1.091
+anchor_right = 0.984
+anchor_bottom = 1.091
+offset_left = -187.4
+offset_top = -294.4
+offset_right = -0.400391
+offset_bottom = -251.4
+grow_horizontal = 0
+grow_vertical = 0
+text = "Test1"
+
+[node name="Test2" type="Button" parent="."]
+top_level = true
+layout_mode = 2
+anchor_left = 0.984
+anchor_top = 1.091
+anchor_right = 0.984
+anchor_bottom = 1.091
+offset_left = -187.4
+offset_top = -241.4
+offset_right = -0.400391
+offset_bottom = -198.4
+grow_horizontal = 0
+grow_vertical = 0
+text = "Test2"
+
+[node name="Test3" type="Button" parent="."]
+top_level = true
+layout_mode = 2
+anchor_left = 0.984
+anchor_top = 1.091
+anchor_right = 0.984
+anchor_bottom = 1.091
+offset_left = -187.4
+offset_top = -191.4
+offset_right = -0.400391
+offset_bottom = -148.4
+grow_horizontal = 0
+grow_vertical = 0
+text = "Test3"
+
 [connection signal="item_selected" from="ModeContainer/ModeOption" to="." method="_on_mode_option_item_selected"]
 [connection signal="pressed" from="PropertyContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]
 [connection signal="pressed" from="PropertyContainer/FileOperationContainer/ReloadFile" to="." method="_on_reload_file_pressed"]
@@ -380,3 +393,4 @@ value = 0.3
 [connection signal="pressed" from="PageSwitchContainer/Right" to="." method="_on_page_right_pressed"]
 [connection signal="pressed" from="Test1" to="." method="_on_test_1_pressed"]
 [connection signal="pressed" from="Test2" to="." method="_on_test_2_pressed"]
+[connection signal="pressed" from="Test3" to="." method="_on_test_3_pressed"]
