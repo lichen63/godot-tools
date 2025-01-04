@@ -219,6 +219,25 @@ handle_input_locally = false
 size = Vector2i(2048, 1200)
 render_target_update_mode = 4
 
+[node name="SelectColorRect" type="ColorRect" parent="Preview/PreviewViewportContainer"]
+z_index = 10
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 2
+color = Color(1, 1, 1, 0.784314)
+
+[node name="RectSize" type="Label" parent="Preview/PreviewViewportContainer/SelectColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -46.5
+offset_top = -57.0
+offset_right = 41.5
+offset_bottom = -2.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 40
+text = "0 x 0"
+
 [node name="TopBorder" type="ColorRect" parent="Preview"]
 layout_mode = 1
 anchors_preset = 1
@@ -358,9 +377,9 @@ anchor_top = 1.091
 anchor_right = 0.984
 anchor_bottom = 1.091
 offset_left = -187.4
-offset_top = -241.4
+offset_top = -243.4
 offset_right = -0.400391
-offset_bottom = -198.4
+offset_bottom = -200.4
 grow_horizontal = 0
 grow_vertical = 0
 text = "Test2"

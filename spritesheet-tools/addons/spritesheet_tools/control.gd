@@ -20,6 +20,10 @@ var selected_file_for_split: String = ""
 var preview_viewport_list: Array[SubViewport] = []
 var preview_cur_viewport_index: int = 0
 var cached_crop_cells: Array[Image] = []
+var select_rect_start_pos: Vector2 = Vector2()
+var select_rect_end_pos: Vector2 = Vector2()
+var is_selecting: bool = false
+var select_rect_final_rect: Rect2 = Rect2()
 
 @onready var option_button: OptionButton = $ModeContainer/ModeOption
 @onready var select_file_dialog: FileDialog = $SelectFileDialog
@@ -39,7 +43,37 @@ var cached_crop_cells: Array[Image] = []
 @onready var progress_bar: ProgressBar = $ProgressPopupPanel/ProgressBar
 @onready var selected_files_edit: TextEdit = $PropertyContainer/FilePath
 @onready var preview_split_grid_container: Control = $Preview/GridContainer
+@onready var select_color_rect: ColorRect = $Preview/PreviewViewportContainer/SelectColorRect
+@onready var select_color_rect_label: Label = $Preview/PreviewViewportContainer/SelectColorRect/RectSize
 
+
+func _input(event: InputEvent) -> void:
+    if self.cur_mode != ToolMode.SPLIT_SINGLE_IMAGE:
+        return
+    if self.preview_viewport_list.is_empty():
+        return
+    var cur_viewport: SubViewport = self.preview_viewport_list.front()
+    var viewport_texture: ViewportTexture = cur_viewport.get_texture()
+    var viewport_rect: Rect2 = self.preview_viewport_container.get_global_rect()
+    if event is InputEventMouseButton:
+        var global_mouse_pos: Vector2 = event.global_position
+        if viewport_rect.has_point(global_mouse_pos):
+            if event.button_index == MOUSE_BUTTON_LEFT:
+                if event.pressed:
+                    self.is_selecting = true
+                    self.select_rect_start_pos = self.preview_viewport_container.get_local_mouse_position()
+                    self.select_color_rect.show()
+                    self.select_rect_final_rect = Rect2()
+                else:
+                    self.is_selecting = false
+                    self.select_rect_end_pos = self.preview_viewport_container.get_local_mouse_position()
+                    self.select_rect_final_rect = Rect2(self.select_rect_start_pos, self.select_rect_end_pos - self.select_rect_start_pos).abs()
+    elif event is InputEventMouseMotion and self.is_selecting:
+        self.select_rect_end_pos = self.preview_viewport_container.get_local_mouse_position()
+        var rect = Rect2(self.select_rect_start_pos, self.select_rect_end_pos - self.select_rect_start_pos).abs()
+        self.select_color_rect.position = rect.position
+        self.select_color_rect.size = rect.size
+        self.select_color_rect_label.text = "%d x %d" % [rect.size.x, rect.size.y]
 
 func _on_mode_option_item_selected(index: ToolMode) -> void:
     match index:
@@ -153,8 +187,7 @@ func _on_save_to_file_pressed() -> void:
             self.progress_bar.value = (index + 1.0) / cached_image_size
             index += 1
     elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
-        # TODO
-        pass
+        self.extract_and_save_area()
     await self.get_tree().create_timer(1).timeout
     self.progress_panel.hide()
 
@@ -230,8 +263,9 @@ func clear_preview_images() -> void:
             child.queue_free()
     self.preview_viewport_list.clear()
     for child in self.preview_viewport_container.get_children():
-        self.preview_viewport_container.remove_child(child)
-        child.queue_free()
+        if child is SubViewport:
+            self.preview_viewport_container.remove_child(child)
+            child.queue_free()
     self.hide_grid_lines()
 
 func get_and_validate_input(input: LineEdit) -> int:
@@ -306,7 +340,8 @@ func update_preview_num_text() -> void:
 
 func update_preview_image() -> void:
     for child in self.preview_viewport_container.get_children():
-        self.preview_viewport_container.remove_child(child)
+        if child is SubViewport:
+            self.preview_viewport_container.remove_child(child)
     self.preview_viewport_container.size = self.preview_viewport_list[self.preview_cur_viewport_index].size
     self.preview_viewport_container.add_child(self.preview_viewport_list[self.preview_cur_viewport_index])
 
@@ -412,6 +447,23 @@ func split_images_to_cache() -> void:
             x += cell_width + separation_x
             index += 1
         y += cell_height + separation_y
+
+func extract_and_save_area() -> void:
+    if self.cur_mode != ToolMode.SPLIT_SINGLE_IMAGE:
+        return
+    if self.preview_viewport_list.is_empty():
+        return
+    if is_zero_approx(self.select_rect_final_rect.size.x) or is_zero_approx(self.select_rect_final_rect.size.y):
+        return
+    print("select_rect_final_rect: ", self.select_rect_final_rect)
+    var cur_viewport: SubViewport = self.preview_viewport_list.front()
+    var viewport_texture: ViewportTexture = cur_viewport.get_texture()
+    var viewport_image: Image = viewport_texture.get_image()
+    var sub_image = Image.create_empty(1, 1, false, viewport_image.get_format())
+    sub_image.blit_rect(viewport_image, self.select_rect_final_rect, Vector2(0, 0))
+    var err: Error = sub_image.save_png("user://export/test.png")
+    self.select_color_rect.hide()
+    print("extract_and_save_area save image, err: %d" % [err])
 
 func _on_test_1_pressed() -> void:
     var files: PackedStringArray = PackedStringArray()
