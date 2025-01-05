@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://lc58qq610hsg"]
+[gd_scene load_steps=4 format=3 uid="uid://lc58qq610hsg"]
 
 [ext_resource type="Script" path="res://addons/spritesheet_tools/control.gd" id="1_f6q73"]
 [ext_resource type="Texture2D" uid="uid://t8a24567l10d" path="res://addons/spritesheet_tools/arrow.png" id="2_57mpp"]
+[ext_resource type="Texture2D" uid="uid://bt6ygm2xkv5x0" path="res://addons/spritesheet_tools/placeholder.png" id="3_o58b4"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -35,10 +36,12 @@ text = "Mode:"
 [node name="ModeOption" type="OptionButton" parent="ModeContainer"]
 layout_mode = 2
 selected = 0
-item_count = 2
+item_count = 3
 popup/item_0/text = "Pack to spritesheet"
 popup/item_1/text = "Crop to cells"
 popup/item_1/id = 1
+popup/item_2/text = "Split single image"
+popup/item_2/id = 2
 
 [node name="PropertyContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
@@ -293,9 +296,9 @@ grow_vertical = 2
 
 [node name="PageSwitchContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 1600.0
+offset_left = 1487.0
 offset_top = 1291.0
-offset_right = 2600.0
+offset_right = 2487.0
 offset_bottom = 1547.0
 scale = Vector2(0.3, 0.3)
 alignment = 1
@@ -398,6 +401,14 @@ offset_bottom = -148.4
 grow_horizontal = 0
 grow_vertical = 0
 text = "Test3"
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 139.0
+offset_top = 1053.0
+offset_right = 395.0
+offset_bottom = 1309.0
+texture = ExtResource("3_o58b4")
 
 [connection signal="item_selected" from="ModeContainer/ModeOption" to="." method="_on_mode_option_item_selected"]
 [connection signal="pressed" from="PropertyContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]

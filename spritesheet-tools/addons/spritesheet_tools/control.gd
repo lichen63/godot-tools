@@ -187,7 +187,9 @@ func _on_save_to_file_pressed() -> void:
             self.progress_bar.value = (index + 1.0) / cached_image_size
             index += 1
     elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
-        self.extract_and_save_area()
+        var file_path: String = self.get_next_savable_file_path(save_path_string)
+        if not file_path.is_empty():
+            self.extract_and_save_area(file_path)
     await self.get_tree().create_timer(1).timeout
     self.progress_panel.hide()
 
@@ -442,28 +444,29 @@ func split_images_to_cache() -> void:
         var x = x_start
         while x + cell_width <= x_end:
             var sub_image: Image = Image.create_empty(cell_width, cell_height, false, viewport_image.get_format())
-            sub_image.blit_rect(viewport_image, Rect2(Vector2(x, y), Vector2(cell_width, cell_height)), Vector2(0, 0))
+            sub_image.blit_rect(viewport_image, Rect2(Vector2(x, y), Vector2(cell_width, cell_height)), Vector2.ZERO)
             self.cached_crop_cells.append(sub_image)
             x += cell_width + separation_x
             index += 1
         y += cell_height + separation_y
 
-func extract_and_save_area() -> void:
+func extract_and_save_area(file_path: String) -> void:
     if self.cur_mode != ToolMode.SPLIT_SINGLE_IMAGE:
+        self.show_error_with_message("Current mode is not SPLIT_SINGLE_IMAGE")
         return
     if self.preview_viewport_list.is_empty():
         return
     if is_zero_approx(self.select_rect_final_rect.size.x) or is_zero_approx(self.select_rect_final_rect.size.y):
+        self.show_error_with_message("Invalid rectangle from selection")
         return
-    print("select_rect_final_rect: ", self.select_rect_final_rect)
     var cur_viewport: SubViewport = self.preview_viewport_list.front()
     var viewport_texture: ViewportTexture = cur_viewport.get_texture()
     var viewport_image: Image = viewport_texture.get_image()
-    var sub_image = Image.create_empty(1, 1, false, viewport_image.get_format())
-    sub_image.blit_rect(viewport_image, self.select_rect_final_rect, Vector2(0, 0))
-    var err: Error = sub_image.save_png("user://export/test.png")
+    var sub_image = Image.create_empty(self.select_rect_final_rect.size.x, self.select_rect_final_rect.size.y, false, viewport_image.get_format())
+    sub_image.blit_rect(viewport_image, self.select_rect_final_rect, Vector2.ZERO)
+    var err: Error = sub_image.save_png(file_path)
+    print("extract_and_save_area save image to %s, err: %d" % [file_path, err])
     self.select_color_rect.hide()
-    print("extract_and_save_area save image, err: %d" % [err])
 
 func _on_test_1_pressed() -> void:
     var files: PackedStringArray = PackedStringArray()
