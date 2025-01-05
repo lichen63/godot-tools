@@ -68,6 +68,9 @@ func _input(event: InputEvent) -> void:
                     self.is_selecting = false
                     self.select_rect_end_pos = self.preview_viewport_container.get_local_mouse_position()
                     self.select_rect_final_rect = Rect2(self.select_rect_start_pos, self.select_rect_end_pos - self.select_rect_start_pos).abs()
+                    self.select_color_rect.position = self.select_rect_final_rect.position
+                    self.select_color_rect.size = self.select_rect_final_rect.size
+                    self.select_color_rect_label.text = "%d x %d" % [self.select_rect_final_rect.size.x, self.select_rect_final_rect.size.y]
     elif event is InputEventMouseMotion and self.is_selecting:
         self.select_rect_end_pos = self.preview_viewport_container.get_local_mouse_position()
         var rect = Rect2(self.select_rect_start_pos, self.select_rect_end_pos - self.select_rect_start_pos).abs()
@@ -464,6 +467,7 @@ func extract_and_save_area(file_path: String) -> void:
     var viewport_image: Image = viewport_texture.get_image()
     var sub_image = Image.create_empty(self.select_rect_final_rect.size.x, self.select_rect_final_rect.size.y, false, viewport_image.get_format())
     sub_image.blit_rect(viewport_image, self.select_rect_final_rect, Vector2.ZERO)
+    $TextureRect.texture = ImageTexture.create_from_image(sub_image)
     var err: Error = sub_image.save_png(file_path)
     print("extract_and_save_area save image to %s, err: %d" % [file_path, err])
     self.select_color_rect.hide()
