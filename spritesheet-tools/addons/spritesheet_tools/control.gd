@@ -13,6 +13,7 @@ const SIZE_Y_DEFAULT_VALUE_FOR_PACK: String = "1024"
 const SIZE_X_DEFAULT_VALUE_FOR_SPLIT: String = "128"
 const SIZE_Y_DEFAULT_VALUE_FOR_SPLIT: String = "128"
 const SEPARATION_DEFAULT_VALUE: String = "1"
+const SAVE_IMAGE_COUNT_LIMIT: int = 99999
 
 var cur_mode: ToolMode = ToolMode.PACK_IMAGES
 var selected_files_for_pack: PackedStringArray = PackedStringArray()
@@ -67,16 +68,17 @@ func _input(event: InputEvent) -> void:
                 else:
                     self.is_selecting = false
                     self.select_rect_end_pos = self.preview_viewport_container.get_local_mouse_position()
-                    self.select_rect_final_rect = Rect2(self.select_rect_start_pos, self.select_rect_end_pos - self.select_rect_start_pos).abs()
-                    self.select_color_rect.position = self.select_rect_final_rect.position
-                    self.select_color_rect.size = self.select_rect_final_rect.size
-                    self.select_color_rect_label.text = "%d x %d" % [self.select_rect_final_rect.size.x, self.select_rect_final_rect.size.y]
+                    var select_rect: Rect2 = Rect2(self.select_rect_start_pos, self.select_rect_end_pos - self.select_rect_start_pos).abs()
+                    self.select_color_rect_label.text = "%d x %d" % [select_rect.size.x, select_rect.size.y]
+                    self.select_color_rect.set_position(select_rect.position)
+                    self.select_color_rect.set_size(select_rect.size)
+                    self.select_rect_final_rect = select_rect
     elif event is InputEventMouseMotion and self.is_selecting:
         self.select_rect_end_pos = self.preview_viewport_container.get_local_mouse_position()
-        var rect = Rect2(self.select_rect_start_pos, self.select_rect_end_pos - self.select_rect_start_pos).abs()
-        self.select_color_rect.position = rect.position
-        self.select_color_rect.size = rect.size
-        self.select_color_rect_label.text = "%d x %d" % [rect.size.x, rect.size.y]
+        var select_rect: Rect2 = Rect2(self.select_rect_start_pos, self.select_rect_end_pos - self.select_rect_start_pos).abs()
+        self.select_color_rect_label.text = "%d x %d" % [select_rect.size.x, select_rect.size.y]
+        self.select_color_rect.position = select_rect.position
+        self.select_color_rect.size = select_rect.size
 
 func _on_mode_option_item_selected(index: ToolMode) -> void:
     match index:
@@ -95,108 +97,119 @@ func _on_mode_option_item_selected(index: ToolMode) -> void:
         ToolMode.SPLIT_SINGLE_IMAGE:
             self.cur_mode = ToolMode.SPLIT_SINGLE_IMAGE
         _:
-            self.show_error_with_message("Unknown tool mode selected")
+            self.show_error_dialog("Unknown tool mode [%d] selected." % [index])
 
 func _on_select_file_pressed() -> void:
-    if self.cur_mode == ToolMode.PACK_IMAGES:
-        self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES
-    elif self.cur_mode == ToolMode.CROP_TO_CELLS:
-        self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
-        self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+    self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES if self.cur_mode == ToolMode.PACK_IMAGES else FileDialog.FILE_MODE_OPEN_FILE
     self.select_file_dialog.show()
 
 func _on_reload_file_pressed() -> void:
-    var text_in_edit: String = self.selected_files_edit.text.strip_edges()
-    if self.cur_mode == ToolMode.PACK_IMAGES:
-        self.selected_files_for_pack.clear()
-        for file_path in text_in_edit.split("\n"):
-            if FileAccess.file_exists(file_path):
-                self.selected_files_for_pack.append(file_path)
-    elif self.cur_mode == ToolMode.CROP_TO_CELLS:
-        if not FileAccess.file_exists(text_in_edit):
-            self.show_error_with_message("File path is not a valid path or file does not exist")
-            return
-        self.selected_file_for_split = text_in_edit
-    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
-        if not FileAccess.file_exists(text_in_edit):
-            self.show_error_with_message("File path is not a valid path or file does not exist")
-            return
-        self.selected_file_for_split = text_in_edit
-    self.clear_and_reload()
+    var selected_files_string: String = self.selected_files_edit.text.strip_edges()
+    match self.cur_mode:
+        ToolMode.PACK_IMAGES:
+            self.selected_files_for_pack.clear()
+            for file_path in selected_files_string.split("\n"):
+                if self.check_is_valid_image_file_path(file_path):
+                    self.selected_files_for_pack.append(file_path)
+        ToolMode.CROP_TO_CELLS, ToolMode.SPLIT_SINGLE_IMAGE:
+            if self.check_is_valid_image_file_path(selected_files_string):
+                self.selected_file_for_split = selected_files_string
+    self.clear_and_reload_preview()
 
-func _on_select_file_dialog_file_selected(path: String) -> void:
-    if self.cur_mode == ToolMode.PACK_IMAGES:
-        self.selected_files_for_pack.push_back(path)
-    elif self.cur_mode == ToolMode.CROP_TO_CELLS:
-        self.selected_file_for_split = path
-    elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
-        self.selected_file_for_split = path
+func _on_select_file_dialog_file_selected(file_path: String) -> void:
+    if not self.check_is_valid_image_file_path(file_path):
+        return
+    match self.cur_mode:
+        ToolMode.PACK_IMAGES:
+            self.selected_files_for_pack.clear()
+            self.selected_files_for_pack.push_back(file_path)
+        ToolMode.CROP_TO_CELLS, ToolMode.SPLIT_SINGLE_IMAGE:
+            self.selected_file_for_split = file_path
 
 func _on_select_file_dialog_files_selected(paths: PackedStringArray) -> void:
-    self.selected_files_for_pack = paths
+    var valid_files: PackedStringArray = PackedStringArray()
+    for file_path in paths:
+        if self.check_is_valid_image_file_path(file_path):
+            valid_files.append(file_path)
+    self.selected_files_for_pack = valid_files
     
 func _on_select_file_dialog_confirmed() -> void:
-    self.clear_and_reload()
+    self.clear_and_reload_preview()
 
 func _on_select_file_dialog_canceled() -> void:
     pass
 
 func _on_generate_pressed() -> void:
-    self.clear_and_reload()
+    self.clear_and_reload_preview()
 
 func _on_page_left_pressed() -> void:
-    self.show_next_or_prev_viewport(false)
+    self.show_next_or_prev_preview(false)
 
 func _on_page_right_pressed() -> void:
-    self.show_next_or_prev_viewport(true)
+    self.show_next_or_prev_preview(true)
 
 func _on_save_to_file_pressed() -> void:
-    var save_path_string: String = self.save_path_edit.text
-    if not self.is_save_path_valid(save_path_string):
-        self.show_error_with_message("Invalid save path.")
+    var save_path: String = self.save_path_edit.text
+    if not self.check_is_valid_savable_path(save_path):
         return
     self.progress_panel.show()
     self.progress_bar.value = 0
     if self.cur_mode == ToolMode.PACK_IMAGES:
-        self.save_image_panel.show()
-        var index: int = 0
-        for viewport in self.preview_viewport_list:
-            var file_path: String = self.get_next_savable_file_path(save_path_string)
-            if file_path.is_empty():
-                break
-            for child in self.save_image_container.get_children():
-                self.save_image_container.remove_child(child)
-                child.queue_free()
-            var dup_viewport = viewport.duplicate()
-            self.save_image_container.add_child(dup_viewport)
-            await self.get_tree().create_timer(1).timeout
-            var texture: ViewportTexture = dup_viewport.get_texture()
-            var image: Image = texture.get_image()
-            var err: Error = image.save_png(file_path)
-            print("Save image: %s, err: %d" % [file_path, err])
-            self.create_tween().tween_property(self.progress_bar, "value", (index + 1.0) / self.preview_viewport_list.size(), 0.6)
-            index += 1
-        self.save_image_panel.hide()
+        self.save_images_in_pack_mode(save_path)
     elif self.cur_mode == ToolMode.CROP_TO_CELLS:
-        var index: int = 0
-        var cached_image_size: int = self.cached_crop_cells.size()
-        for image: Image in self.cached_crop_cells:
-            var file_path: String = self.get_next_savable_file_path(save_path_string)
-            if file_path.is_empty():
-                break
-            var err: Error = image.save_png(file_path)
-            print("Save image: %s, err: %d" % [file_path, err])
-            self.progress_bar.value = (index + 1.0) / cached_image_size
-            index += 1
+        self.save_images_in_crop_mode(save_path)
     elif self.cur_mode == ToolMode.SPLIT_SINGLE_IMAGE:
-        var file_path: String = self.get_next_savable_file_path(save_path_string)
-        if not file_path.is_empty():
-            self.extract_and_save_area(file_path)
+        self.save_images_in_split_mode(save_path)
     await self.get_tree().create_timer(1).timeout
     self.progress_panel.hide()
 
-func clear_and_reload() -> void:
+func save_images_in_pack_mode(save_path: String) -> void:
+    self.save_image_panel.show()
+    var index: int = 0
+    for viewport in self.preview_viewport_list:
+        var file_path: String = self.get_next_savable_file_path(save_path)
+        if file_path.is_empty():
+            break
+        for child in self.save_image_container.get_children():
+            self.save_image_container.remove_child(child)
+            child.queue_free()
+        var dup_viewport = viewport.duplicate()
+        self.save_image_container.add_child(dup_viewport)
+        await self.get_tree().create_timer(1).timeout
+        var texture: ViewportTexture = dup_viewport.get_texture()
+        var image: Image = texture.get_image()
+        var err: Error = image.save_png(file_path)
+        print("Save image: %s, err: %d" % [file_path, err])
+        self.create_tween().tween_property(self.progress_bar, "value", (index + 1.0) / self.preview_viewport_list.size(), 0.6)
+        index += 1
+    self.save_image_panel.hide()
+
+func save_images_in_crop_mode(save_path: String) -> void:
+    var index: int = 0
+    var cached_image_size: int = self.cached_crop_cells.size()
+    for image: Image in self.cached_crop_cells:
+        var file_path: String = self.get_next_savable_file_path(save_path)
+        if file_path.is_empty():
+            break
+        var err: Error = image.save_png(file_path)
+        print("Save image: %s, err: %d" % [file_path, err])
+        self.progress_bar.value = (index + 1.0) / cached_image_size
+        index += 1
+
+func save_images_in_split_mode(save_path: String) -> void:
+    var file_path: String = self.get_next_savable_file_path(save_path)
+    if not file_path.is_empty():
+        self.extract_and_save_area(file_path)
+
+func check_is_valid_image_file_path(file_path: String) -> bool:
+    var supported_image_format: Array = ["png", "jpg", "jpeg"]
+    if FileAccess.file_exists(file_path):
+        if file_path.get_extension() in supported_image_format:
+            return true
+    self.show_error_dialog("File [%s] is not a valid image file path, please check." % [file_path])
+    return false
+
+func clear_and_reload_preview() -> void:
     self.clear_selected_files_edit()
     self.update_selected_files_edit()
     self.clear_preview_images()
@@ -212,36 +225,29 @@ func clear_and_reload() -> void:
 
 func get_next_savable_file_path(save_path: String) -> String:
     var index: int = 0
-    while index < 99999:
-        var file_path = save_path.path_join(EXPORT_FILE_NAME_FORMAT % index)
+    if not self.check_is_valid_savable_path(save_path):
+        return ""
+    while index < SAVE_IMAGE_COUNT_LIMIT:
+        var file_path: String = save_path.path_join(EXPORT_FILE_NAME_FORMAT % index)
         if not FileAccess.file_exists(file_path):
             return file_path
         index += 1
-    print("Cannot find savable file path")
+    self.show_error_dialog("Unable to generate a valid save path. The limit of [%d] files may have been reached. Please clean up the folder or choose another save location." % [SAVE_IMAGE_COUNT_LIMIT])
     return ""
 
-func is_save_path_valid(save_path: String) -> bool:
+func check_is_valid_savable_path(save_path: String) -> bool:
     if not save_path.begins_with("user://"):
-        print("Save path must begin with 'user://'")
+        self.show_error_dialog("Save path [%s] must begin with 'user://'" % [save_path])
         return false
-    if not ensure_directory_exists(save_path):
-        print("Failed to prepare the save directory")
-        return false
-    if not save_path.ends_with("/"):
-        print("Save path should end with '/'")
-        return false
-    return true
-
-func ensure_directory_exists(save_path: String) -> bool:
-    var directory_path = save_path.get_base_dir()
-    if not DirAccess.dir_exists_absolute(directory_path):
-        var error: Error = DirAccess.make_dir_absolute(directory_path)
-        if error != OK:
-            print("Failed to create directory: ", directory_path, " Error code: ", error)
+    var base_dir: String = save_path.get_base_dir()
+    if not DirAccess.dir_exists_absolute(base_dir):
+        var err: Error = DirAccess.make_dir_absolute(base_dir)
+        if err != Error.OK:
+            self.show_error_dialog("Failed to create save path [%s], error code [%d]" % [save_path, err])
             return false
     return true
 
-func show_next_or_prev_viewport(is_next: bool) -> void:
+func show_next_or_prev_preview(is_next: bool) -> void:
     var next_index: int = -1
     var list_size: int = self.preview_viewport_list.size()
     if is_next:
@@ -276,11 +282,12 @@ func clear_preview_images() -> void:
 func get_and_validate_input(input: LineEdit) -> int:
     var text: String = input.text
     if not text.is_valid_int():
-        self.show_error_with_message("[%s] is not a valid integer" % input.get_path())
+        self.show_error_dialog("[%s] is not a valid integer" % input.get_path())
         return input.placeholder_text.to_int()
     return text.to_int()
 
-func show_error_with_message(message: String) -> void:
+func show_error_dialog(message: String) -> void:
+    push_error(message)
     self.error_dialog.dialog_text = message
     self.error_dialog.show()
 
@@ -455,12 +462,12 @@ func split_images_to_cache() -> void:
 
 func extract_and_save_area(file_path: String) -> void:
     if self.cur_mode != ToolMode.SPLIT_SINGLE_IMAGE:
-        self.show_error_with_message("Current mode is not SPLIT_SINGLE_IMAGE")
+        self.show_error_dialog("Current mode is not SPLIT_SINGLE_IMAGE")
         return
     if self.preview_viewport_list.is_empty():
         return
     if is_zero_approx(self.select_rect_final_rect.size.x) or is_zero_approx(self.select_rect_final_rect.size.y):
-        self.show_error_with_message("Invalid rectangle from selection")
+        self.show_error_dialog("Invalid rectangle from selection")
         return
     var cur_viewport: SubViewport = self.preview_viewport_list.front()
     var viewport_texture: ViewportTexture = cur_viewport.get_texture()
@@ -491,7 +498,7 @@ func _on_test_1_pressed() -> void:
             files.append("res://sample/sprite_images/character/Walk_%d.png" % i)
     self.selected_files_for_pack = files
     self.cur_mode = ToolMode.PACK_IMAGES
-    self.clear_and_reload()
+    self.clear_and_reload_preview()
 
 func _on_test_2_pressed() -> void:
     self.selected_file_for_split = "res://sample/spritesheet/sheet.png"
@@ -500,9 +507,9 @@ func _on_test_2_pressed() -> void:
     self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
     self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
     self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
-    self.clear_and_reload()
+    self.clear_and_reload_preview()
 
 func _on_test_3_pressed() -> void:
     self.selected_file_for_split = "res://sample/spritesheet/sheet.png"
     self.cur_mode = ToolMode.SPLIT_SINGLE_IMAGE
-    self.clear_and_reload()
+    self.clear_and_reload_preview()
