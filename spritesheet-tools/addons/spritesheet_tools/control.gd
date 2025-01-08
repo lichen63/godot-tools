@@ -205,7 +205,7 @@ func save_images_in_split_mode(save_path: String) -> void:
     if self.preview_viewport_list.is_empty():
         return
     if is_zero_approx(self.select_rect_final_rect.size.x) or is_zero_approx(self.select_rect_final_rect.size.y):
-        self.show_error_dialog("Invalid rectangle size from selection.")
+        self.show_error_dialog("Invalid rectangle size from selection: [%s]." % [self.select_rect_final_rect.size])
         return
     var cur_viewport: SubViewport = self.preview_viewport_list[self.preview_cur_viewport_index]
     var viewport_texture: ViewportTexture = cur_viewport.get_texture()
@@ -485,7 +485,7 @@ func _on_test_1_pressed() -> void:
     self.clear_and_reload_preview()
 
 func _on_test_2_pressed() -> void:
-    self.selected_file_for_split = "res://sample/spritesheet/sheet.png"
+    self.selected_file_for_split = "res://sample/spritesheet/sheet_2.png"
     self.cur_mode = ToolMode.CROP_TO_CELLS
     self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
     self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
@@ -494,6 +494,6 @@ func _on_test_2_pressed() -> void:
     self.clear_and_reload_preview()
 
 func _on_test_3_pressed() -> void:
-    self.selected_file_for_split = "res://sample/spritesheet/sheet.png"
+    self.selected_file_for_split = "res://sample/spritesheet/sheet_1.png"
     self.cur_mode = ToolMode.SPLIT_SINGLE_IMAGE
     self.clear_and_reload_preview()
