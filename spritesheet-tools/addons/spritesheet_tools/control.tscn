@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://lc58qq610hsg"]
+[gd_scene load_steps=4 format=3 uid="uid://lc58qq610hsg"]
 
 [ext_resource type="Script" path="res://addons/spritesheet_tools/control.gd" id="1_f6q73"]
 [ext_resource type="Texture2D" uid="uid://t8a24567l10d" path="res://addons/spritesheet_tools/arrow.png" id="2_57mpp"]
+[ext_resource type="Theme" uid="uid://bo76j5lrfjw5i" path="res://addons/spritesheet_tools/control.tres" id="2_w6cme"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -26,14 +27,17 @@ layout_mode = 2
 offset_right = 306.0
 offset_bottom = 31.0
 size_flags_horizontal = 0
+theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 15
 
 [node name="ModeLabel" type="Label" parent="ModeContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "Mode:"
 
 [node name="ModeOption" type="OptionButton" parent="ModeContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 selected = 0
 item_count = 3
 popup/item_0/text = "Pack to spritesheet"
@@ -44,54 +48,65 @@ popup/item_2/id = 2
 
 [node name="PropertyContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_top = 40.0
-offset_right = 329.0
-offset_bottom = 258.0
+offset_top = 100.0
+offset_right = 520.0
+offset_bottom = 820.0
+theme = ExtResource("2_w6cme")
 
 [node name="FilePath" type="TextEdit" parent="PropertyContainer"]
-custom_minimum_size = Vector2(300, 100)
+custom_minimum_size = Vector2(300, 600)
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 placeholder_text = "File Path"
 wrap_mode = 1
 
 [node name="FileOperationContainer" type="HBoxContainer" parent="PropertyContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 5
 alignment = 1
 
 [node name="SelectFile" type="Button" parent="PropertyContainer/FileOperationContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme = ExtResource("2_w6cme")
 text = "Select File"
 
 [node name="ReloadFile" type="Button" parent="PropertyContainer/FileOperationContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme = ExtResource("2_w6cme")
 text = "Reload File"
 
 [node name="SizeProperty" type="HBoxContainer" parent="PropertyContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 63
 
 [node name="SizeLabel" type="VBoxContainer" parent="PropertyContainer/SizeProperty"]
 layout_mode = 2
 size_flags_vertical = 4
+theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 10
 
 [node name="X" type="Label" parent="PropertyContainer/SizeProperty/SizeLabel"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "Width:"
 
 [node name="Y" type="Label" parent="PropertyContainer/SizeProperty/SizeLabel"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "Height:"
 
 [node name="SizeValue" type="VBoxContainer" parent="PropertyContainer/SizeProperty"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 
 [node name="X" type="LineEdit" parent="PropertyContainer/SizeProperty/SizeValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "2048"
 placeholder_text = "2048"
 max_length = 6
@@ -99,33 +114,40 @@ max_length = 6
 [node name="Y" type="LineEdit" parent="PropertyContainer/SizeProperty/SizeValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "1024"
 placeholder_text = "1024"
 max_length = 6
 
 [node name="OffsetProperty" type="HBoxContainer" parent="PropertyContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 40
 
 [node name="OffsetLabel" type="VBoxContainer" parent="PropertyContainer/OffsetProperty"]
 layout_mode = 2
 size_flags_vertical = 4
+theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 10
 
 [node name="X" type="Label" parent="PropertyContainer/OffsetProperty/OffsetLabel"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "Offset X:"
 
 [node name="Y" type="Label" parent="PropertyContainer/OffsetProperty/OffsetLabel"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "Offset Y:"
 
 [node name="OffestValue" type="VBoxContainer" parent="PropertyContainer/OffsetProperty"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 
 [node name="X" type="LineEdit" parent="PropertyContainer/OffsetProperty/OffestValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "0"
 placeholder_text = "0"
 max_length = 6
@@ -133,33 +155,40 @@ max_length = 6
 [node name="Y" type="LineEdit" parent="PropertyContainer/OffsetProperty/OffestValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "0"
 placeholder_text = "0"
 max_length = 6
 
 [node name="SeparationProperty" type="HBoxContainer" parent="PropertyContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 20
 
 [node name="SeparationLabel" type="VBoxContainer" parent="PropertyContainer/SeparationProperty"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 10
 alignment = 1
 
 [node name="X" type="Label" parent="PropertyContainer/SeparationProperty/SeparationLabel"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "Margin X:"
 
 [node name="Y" type="Label" parent="PropertyContainer/SeparationProperty/SeparationLabel"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "Margin Y:"
 
 [node name="SeparationValue" type="VBoxContainer" parent="PropertyContainer/SeparationProperty"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 
 [node name="X" type="LineEdit" parent="PropertyContainer/SeparationProperty/SeparationValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "1"
 placeholder_text = "1"
 max_length = 6
@@ -167,21 +196,25 @@ max_length = 6
 [node name="Y" type="LineEdit" parent="PropertyContainer/SeparationProperty/SeparationValue"]
 custom_minimum_size = Vector2(250, 35)
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "1"
 placeholder_text = "1"
 max_length = 6
 
 [node name="Generate" type="Button" parent="PropertyContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "Generate"
 
 [node name="SavePath" type="LineEdit" parent="PropertyContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "user://export/"
 placeholder_text = "Save Path"
 
 [node name="SaveToFile" type="Button" parent="PropertyContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 text = "SaveToFile"
 
 [node name="SelectFileDialog" type="FileDialog" parent="."]
@@ -293,6 +326,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="ErrorDialog" type="AcceptDialog" parent="."]
+title = "Error"
+initial_position = 1
+size = Vector2i(1000, 800)
+dialog_text = "Error Message"
+dialog_autowrap = true
+
 [node name="PageSwitchContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 1487.0
@@ -300,16 +340,19 @@ offset_top = 1291.0
 offset_right = 2487.0
 offset_bottom = 1547.0
 scale = Vector2(0.3, 0.3)
+theme = ExtResource("2_w6cme")
 alignment = 1
 
 [node name="Left" type="TextureButton" parent="PageSwitchContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 texture_normal = ExtResource("2_57mpp")
 flip_h = true
 
 [node name="Number" type="LineEdit" parent="PageSwitchContainer"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 theme_override_font_sizes/font_size = 120
 text = "1/1"
 alignment = 1
@@ -318,14 +361,8 @@ expand_to_text_length = true
 
 [node name="Right" type="TextureButton" parent="PageSwitchContainer"]
 layout_mode = 2
+theme = ExtResource("2_w6cme")
 texture_normal = ExtResource("2_57mpp")
-
-[node name="ErrorDialog" type="AcceptDialog" parent="."]
-title = "Error"
-initial_position = 1
-size = Vector2i(1000, 800)
-dialog_text = "Error Message"
-dialog_autowrap = true
 
 [node name="SaveSpritesheetDialog" type="PopupPanel" parent="."]
 title = "Save Image"
@@ -342,6 +379,54 @@ offset_bottom = 1096.0
 handle_input_locally = false
 render_target_update_mode = 0
 
+[node name="Test1" type="Button" parent="."]
+top_level = true
+layout_mode = 2
+anchor_left = 0.984
+anchor_top = 1.091
+anchor_right = 0.984
+anchor_bottom = 1.091
+offset_left = -187.4
+offset_top = -314.4
+offset_right = -0.400391
+offset_bottom = -256.4
+grow_horizontal = 0
+grow_vertical = 0
+theme = ExtResource("2_w6cme")
+text = "Test1"
+
+[node name="Test2" type="Button" parent="."]
+top_level = true
+layout_mode = 2
+anchor_left = 0.984
+anchor_top = 1.091
+anchor_right = 0.984
+anchor_bottom = 1.091
+offset_left = -187.4
+offset_top = -251.4
+offset_right = -0.400391
+offset_bottom = -193.4
+grow_horizontal = 0
+grow_vertical = 0
+theme = ExtResource("2_w6cme")
+text = "Test2"
+
+[node name="Test3" type="Button" parent="."]
+top_level = true
+layout_mode = 2
+anchor_left = 0.984
+anchor_top = 1.091
+anchor_right = 0.984
+anchor_bottom = 1.091
+offset_left = -187.4
+offset_top = -188.4
+offset_right = -0.400391
+offset_bottom = -130.4
+grow_horizontal = 0
+grow_vertical = 0
+theme = ExtResource("2_w6cme")
+text = "Test3"
+
 [node name="ProgressPopupPanel" type="PopupPanel" parent="."]
 title = "Progress"
 initial_position = 2
@@ -355,51 +440,6 @@ offset_bottom = 56.0
 max_value = 1.0
 step = 0.1
 value = 0.3
-
-[node name="Test1" type="Button" parent="."]
-top_level = true
-layout_mode = 2
-anchor_left = 0.984
-anchor_top = 1.091
-anchor_right = 0.984
-anchor_bottom = 1.091
-offset_left = -187.4
-offset_top = -294.4
-offset_right = -0.400391
-offset_bottom = -251.4
-grow_horizontal = 0
-grow_vertical = 0
-text = "Test1"
-
-[node name="Test2" type="Button" parent="."]
-top_level = true
-layout_mode = 2
-anchor_left = 0.984
-anchor_top = 1.091
-anchor_right = 0.984
-anchor_bottom = 1.091
-offset_left = -187.4
-offset_top = -243.4
-offset_right = -0.400391
-offset_bottom = -200.4
-grow_horizontal = 0
-grow_vertical = 0
-text = "Test2"
-
-[node name="Test3" type="Button" parent="."]
-top_level = true
-layout_mode = 2
-anchor_left = 0.984
-anchor_top = 1.091
-anchor_right = 0.984
-anchor_bottom = 1.091
-offset_left = -187.4
-offset_top = -191.4
-offset_right = -0.400391
-offset_bottom = -148.4
-grow_horizontal = 0
-grow_vertical = 0
-text = "Test3"
 
 [connection signal="item_selected" from="ModeContainer/ModeOption" to="." method="_on_mode_option_item_selected"]
 [connection signal="pressed" from="PropertyContainer/FileOperationContainer/SelectFile" to="." method="_on_select_file_pressed"]

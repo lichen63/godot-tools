@@ -8,11 +8,10 @@ enum ToolMode {
 }
 
 const EXPORT_FILE_NAME_FORMAT: String = "export_%d.png"
-const SIZE_X_DEFAULT_VALUE_FOR_PACK: String = "2048"
-const SIZE_Y_DEFAULT_VALUE_FOR_PACK: String = "1024"
-const SIZE_X_DEFAULT_VALUE_FOR_SPLIT: String = "128"
-const SIZE_Y_DEFAULT_VALUE_FOR_SPLIT: String = "128"
+const SIZE_DEFAULT_VALUE_FOR_PACK: String = "1024"
+const SIZE_DEFAULT_VALUE_FOR_SPLIT: String = "128"
 const SEPARATION_DEFAULT_VALUE: String = "1"
+const OFFSET_DEFAULT_VALUE: String = "0"
 const SAVE_IMAGE_COUNT_LIMIT: int = 99999
 
 var cur_mode: ToolMode = ToolMode.PACK_IMAGES
@@ -46,7 +45,19 @@ var select_rect_final_rect: Rect2 = Rect2()
 @onready var preview_split_grid_container: Control = $Preview/GridContainer
 @onready var select_color_rect: ColorRect = $Preview/PreviewViewportContainer/SelectColorRect
 @onready var select_color_rect_label: Label = $Preview/PreviewViewportContainer/SelectColorRect/RectSize
+@onready var test_1_button: Button = $Test1
+@onready var test_2_button: Button = $Test2
+@onready var test_3_button: Button = $Test3
 
+func _ready() -> void:
+    if OS.is_debug_build():
+        self.test_1_button.show()
+        self.test_2_button.show()
+        self.test_3_button.show()
+    else:
+        self.test_1_button.hide()
+        self.test_2_button.hide()
+        self.test_3_button.hide()
 
 func _input(event: InputEvent) -> void:
     if self.cur_mode != ToolMode.SPLIT_SINGLE_IMAGE:
@@ -81,23 +92,26 @@ func _input(event: InputEvent) -> void:
         self.select_color_rect.size = select_rect.size
 
 func _on_mode_option_item_selected(index: ToolMode) -> void:
-    match index:
-        ToolMode.PACK_IMAGES:
-            self.cur_mode = ToolMode.PACK_IMAGES
-            self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_PACK
-            self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_PACK
-            self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
-            self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
-        ToolMode.CROP_TO_CELLS:
-            self.cur_mode = ToolMode.CROP_TO_CELLS
-            self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
-            self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
-            self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
-            self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
-        ToolMode.SPLIT_SINGLE_IMAGE:
-            self.cur_mode = ToolMode.SPLIT_SINGLE_IMAGE
-        _:
-            self.show_error_dialog("Unknown tool mode [%d] selected." % [index])
+    var tool_mode_settings: Dictionary = {
+        ToolMode.PACK_IMAGES: { "size_value": SIZE_DEFAULT_VALUE_FOR_PACK, "editable": true },
+        ToolMode.CROP_TO_CELLS: { "size_value": SIZE_DEFAULT_VALUE_FOR_SPLIT, "editable": true },
+        ToolMode.SPLIT_SINGLE_IMAGE: { "size_value": SIZE_DEFAULT_VALUE_FOR_SPLIT, "editable": false },
+    }
+    var set_tool_mode: Callable = func(mode: ToolMode, size_value: String, editable: bool) -> void:
+        self.cur_mode = mode
+        self.size_x_edit.text = size_value
+        self.size_y_edit.text = size_value
+        self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
+        self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
+        self.offset_x_edit.text = OFFSET_DEFAULT_VALUE
+        self.offset_y_edit.text = OFFSET_DEFAULT_VALUE
+        for edit in [self.size_x_edit, self.size_y_edit, self.offset_x_edit, self.offset_y_edit, self.separation_x_edit, self.separation_y_edit]:
+            edit.editable = editable
+    if not tool_mode_settings.has(index):
+        self.show_error_dialog("Unknown tool mode [%d] selected." % [index])
+        return
+    var settings = tool_mode_settings[index]
+    set_tool_mode.call(index, settings.size_value, settings.editable)
 
 func _on_select_file_pressed() -> void:
     self.select_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILES if self.cur_mode == ToolMode.PACK_IMAGES else FileDialog.FILE_MODE_OPEN_FILE
@@ -487,8 +501,8 @@ func _on_test_1_pressed() -> void:
 func _on_test_2_pressed() -> void:
     self.selected_file_for_split = "res://sample/spritesheet/sheet_2.png"
     self.cur_mode = ToolMode.CROP_TO_CELLS
-    self.size_x_edit.text = SIZE_X_DEFAULT_VALUE_FOR_SPLIT
-    self.size_y_edit.text = SIZE_Y_DEFAULT_VALUE_FOR_SPLIT
+    self.size_x_edit.text = SIZE_DEFAULT_VALUE_FOR_SPLIT
+    self.size_y_edit.text = SIZE_DEFAULT_VALUE_FOR_SPLIT
     self.separation_x_edit.text = SEPARATION_DEFAULT_VALUE
     self.separation_y_edit.text = SEPARATION_DEFAULT_VALUE
     self.clear_and_reload_preview()
