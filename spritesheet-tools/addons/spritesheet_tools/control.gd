@@ -50,7 +50,7 @@ var select_rect_final_rect: Rect2 = Rect2()
 @onready var test_3_button: Button = $Test3
 
 func _ready() -> void:
-    if OS.is_debug_build():
+    if not OS.is_debug_build():
         self.test_1_button.show()
         self.test_2_button.show()
         self.test_3_button.show()

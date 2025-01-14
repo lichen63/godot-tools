@@ -1,11 +1,6 @@
-# godot-tools
+# Godot Tools
 A collection of Godot tools
 
-## Spritesheet Tools
+## [Spritesheet Tools](./spritesheet-tools/README.md)
 
-A tool used to create spritesheets from a folder of images, and split spritesheets into individual images.
-
-### References
-
-- https://github.com/wo1fsea/PyTexturePacker
-- https://github.com/TeamHypersomnia/rectpack2D/tree/master
+A single-scene tool that used to generate spritesheets from a folder of images, and split spritesheets into individual images.

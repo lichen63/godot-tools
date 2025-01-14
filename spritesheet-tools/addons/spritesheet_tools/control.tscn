@@ -24,8 +24,9 @@ color = Color(0.357438, 0.344443, 0.344443, 1)
 
 [node name="ModeContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
-offset_right = 306.0
-offset_bottom = 31.0
+offset_left = 14.0
+offset_right = 465.0
+offset_bottom = 53.0
 size_flags_horizontal = 0
 theme = ExtResource("2_w6cme")
 theme_override_constants/separation = 15
@@ -48,9 +49,10 @@ popup/item_2/id = 2
 
 [node name="PropertyContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
+offset_left = 14.0
 offset_top = 100.0
-offset_right = 520.0
-offset_bottom = 820.0
+offset_right = 534.0
+offset_bottom = 1320.0
 theme = ExtResource("2_w6cme")
 
 [node name="FilePath" type="TextEdit" parent="PropertyContainer"]
@@ -215,7 +217,8 @@ placeholder_text = "Save Path"
 [node name="SaveToFile" type="Button" parent="PropertyContainer"]
 layout_mode = 2
 theme = ExtResource("2_w6cme")
-text = "SaveToFile"
+text = "Save Files
+"
 
 [node name="SelectFileDialog" type="FileDialog" parent="."]
 title = "Open File(s)"
