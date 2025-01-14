@@ -75,6 +75,7 @@ func _input(event: InputEvent) -> void:
                     self.is_selecting = true
                     self.select_rect_start_pos = self.preview_viewport_container.get_local_mouse_position()
                     self.select_color_rect.show()
+                    self.select_color_rect_label.show()
                     self.select_rect_final_rect = Rect2()
                 else:
                     self.is_selecting = false
@@ -107,6 +108,10 @@ func _on_mode_option_item_selected(index: ToolMode) -> void:
         self.offset_y_edit.text = OFFSET_DEFAULT_VALUE
         for edit in [self.size_x_edit, self.size_y_edit, self.offset_x_edit, self.offset_y_edit, self.separation_x_edit, self.separation_y_edit]:
             edit.editable = editable
+        self.selected_files_edit.text = ""
+        self.clear_preview_viewport_images()
+        self.select_color_rect.hide()
+        self.select_color_rect_label.hide()
     if not tool_mode_settings.has(index):
         self.show_error_dialog("Unknown tool mode [%d] selected." % [index])
         return
