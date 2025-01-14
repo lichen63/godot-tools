@@ -2,6 +2,10 @@
 
 A single-scene utility designed for creating and managing spritesheets and individual images.
 
+## Version
+
+1.0.0
+
 ## Overview
 
 The **Spritesheet Tool** provides efficient and customizable workflows for spritesheet creation and manipulation. It supports three primary functions:
