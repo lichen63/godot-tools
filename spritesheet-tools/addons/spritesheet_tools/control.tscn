@@ -383,6 +383,7 @@ handle_input_locally = false
 render_target_update_mode = 0
 
 [node name="Test1" type="Button" parent="."]
+visible = false
 top_level = true
 layout_mode = 2
 anchor_left = 0.984
@@ -399,6 +400,7 @@ theme = ExtResource("2_w6cme")
 text = "Test1"
 
 [node name="Test2" type="Button" parent="."]
+visible = false
 top_level = true
 layout_mode = 2
 anchor_left = 0.984
@@ -415,6 +417,7 @@ theme = ExtResource("2_w6cme")
 text = "Test2"
 
 [node name="Test3" type="Button" parent="."]
+visible = false
 top_level = true
 layout_mode = 2
 anchor_left = 0.984
